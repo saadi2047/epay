@@ -1,93 +1,60 @@
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka \
->   -o jsonpath='{.spec.namespaceSelector}'
-{"matchNames":["test-metrics"]}[osuser@bastion ~]$ oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
->   -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
-podmonitor.monitoring.coreos.com/kafka-resources-metrics patched
-[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka   -o jsonpath='{.spec.namespaceSelector}'
-{"matchNames":["dev-kafka"]}[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
-namespace/dev-kafka labeled
-[osuser@bastion ~]$ oc get namespace dev-kafka --show-labels
-NAME        STATUS   AGE    LABELS
-dev-kafka   Active   546d   env=dev,kubernetes.io/metadata.name=dev-kafka,openshift.io/user-monitoring=true,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
->   -o jsonpath='{.data.console-config\.yaml}' | base64 -d
----
-kubernetes:
-  enabled: true
-security:
-  subjects: []
-  roles: []
-  audit: []
-  oidc: null
-metricsSources:
-- name: "kafka-metrics"
-  type: "openshift-monitoring"
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-schemaRegistries: []
-kafka:
-  clusters:
-  - name: "dev-kafka-cluster"
-    namespace: "dev-kafka"
-    listener: "plain"
-    security:
-      subjects: []
-      roles: []
-      audit: []
-    properties:
-      security.protocol: "PLAINTEXT"
-      bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
-    adminProperties:
-      security.protocol: "PLAINTEXT"
-      request.timeout.ms: "30000"
-      default.api.timeout.ms: "30000"
-    consumerProperties:
-      security.protocol: "PLAINTEXT"
-      request.timeout.ms: "30000"
-    producerProperties:
-      security.protocol: "PLAINTEXT"
-      request.timeout.ms: "30000"
-[osuser@bastion ~]$ ```oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
->   curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
->   | python3 -m json.tool | head -20
-> "
-> ^C
-[osuser@bastion ~]$ oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
->   curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
->   | python3 -m json.tool | head -20
-{
-    "status": "success",
-    "data": {
-        "resultType": "vector",
-        "result": [
-            {
-                "metric": {
-                    "__name__": "kafka_server_BrokerTopicMetrics_Count",
-                    "container": "kafka",
-                    "endpoint": "tcp-prometheus",
-                    "instance": "172.16.8.130:9404",
-                    "job": "dev-kafka/kafka-resources-metrics",
-                    "kubernetes_pod_name": "dev-kafka-cluster-controller-3",
-                    "name": "BytesInPerSec",
-                    "namespace": "dev-kafka",
-                    "node_ip": "10.177.142.141",
-                    "node_name": "worker1.dev.sbiepay.sbi",
-                    "pod": "dev-kafka-cluster-controller-3",
-                    "strimzi_io_broker_role": "false",
-                    "strimzi_io_cluster": "dev-kafka-cluster",
-Traceback (most recent call last):
-  File "/usr/lib64/python3.6/runpy.py", line 193, in _run_module_as_main
-    "__main__", mod_spec)
-  File "/usr/lib64/python3.6/runpy.py", line 85, in _run_code
-    exec(code, run_globals)
-  File "/usr/lib64/python3.6/json/tool.py", line 50, in <module>
-    main()
-  File "/usr/lib64/python3.6/json/tool.py", line 45, in main
-    json.dump(obj, outfile, sort_keys=sort_keys, indent=4)
-  File "/usr/lib64/python3.6/json/__init__.py", line 180, in dump
-    fp.write(chunk)
-BrokenPipeError: [Errno 32] Broken pipe
-[osuser@bastion ~]$
+deployment
+dev
+charts
+epay_common
+templates
+kafka
+kafka-console.yaml
+
+
+
+
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: dev-console
+  namespace: dev-kafka
+
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+          - name: default.api.timeout.ms
+            value: '30000'
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+
+  metricsSources:
+    # - name: k8s
+    #   type: openshift-monitoring
+      #url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+    - name: "kafka-metrics"
+      type: "openshift-monitoring"
+      url: "http//thanos-querier.openshift-monitoring.svc.cluster.local:9091"
