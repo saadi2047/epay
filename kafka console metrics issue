@@ -1,28 +1,56 @@
 console.yaml
 
 ---
-apiVersion: v1
-kind: Secret
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
 metadata:
-  name: dev-console-console-secret
+  name: dev-console
   namespace: dev-kafka
-type: Opaque
-stringData:
-  console-config.yaml: |
-    kubernetes:
-      enabled: true
-    metricsSources:
-      - name: kafka-metrics
-        type: openshift-monitoring
-        url: {{ .Values.console.metrics.prometheus.url | quote }}
-    kafka:
-      clusters:
-        - name: dev-kafka-cluster
-          namespace: dev-kafka
-          listener: plain
-          properties:
-            security.protocol: PLAINTEXT
-            bootstrap.servers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
+
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+          - name: default.api.timeout.ms
+            value: '30000'
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+
+  metricsSources:
+    # - name: k8s
+    #   type: openshift-monitoring
+      #url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+    - name: "kafka-metrics"
+      type: "openshift-monitoring"
+      url: {{ .Values.console.metrics.prometheus.url | quote }}
+
 
 
 
