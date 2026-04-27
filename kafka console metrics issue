@@ -1,15 +1,92 @@
-oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
-
-
-
-oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
-
-
-metricsSources:
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+> -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o yaml > backup-secret.yaml
+[osuser@bastion ~]$ oc delete secret dev-console-console-secret -n dev-kafka
+secret "dev-console-console-secret" deleted
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafk
+Error from server (NotFound): namespaces "dev-kafk" not found
+[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+deployment.apps/dev-console-console-deployment restarted
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
+Defaulted container "console-api" out of: console-api, console-ui
+[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
+  metricsSources:
   - name: kafka-metrics
     type: openshift-monitoring
     url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+status:
+  conditions:
+[osuser@bastion ~]$ oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
 
-
-oc get secret dev-console-console-secret -n dev-kafka \
--o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+[1]+  Stopped                 oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
+[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com dev-console -o yaml -n dev-kafka
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  annotations:
+    meta.helm.sh/release-name: epay-common
+    meta.helm.sh/release-namespace: dev-epay-common
+  creationTimestamp: "2026-04-21T11:10:40Z"
+  finalizers:
+  - consoles.console.streamshub.github.com/finalizer
+  generation: 5
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: dev-console
+  namespace: dev-kafka
+  resourceVersion: "727724267"
+  uid: 7c866b04-fd85-40f1-a2b9-0b71de4b2ce3
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+  kafkaClusters:
+  - adminProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+      - name: default.api.timeout.ms
+        value: "30000"
+    consumerProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+    listener: plain
+    name: dev-kafka-cluster
+    namespace: dev-kafka
+    producerProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+    properties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+  metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+    url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+status:
+  conditions:
+  - lastTransitionTime: "2026-04-27T10:29:03.383297062Z"
+    message: All resources ready
+    status: "True"
+    type: Ready
+  observedGeneration: 5
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$
