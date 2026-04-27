@@ -1,23 +1,141 @@
-# 1. Confirm what Prometheus namespace is being used
-oc get prometheus -A
-oc get prometheusrule -n dev-kafka
+[osuser@bastion ~]$ oc get prometheus -A
+NAMESPACE                            NAME            VERSION   DESIRED   READY   RECONCILED   AVAILABLE   AGE
+openshift-monitoring                 k8s             3.2.1     2         2       True         True        596d
+openshift-user-workload-monitoring   user-workload   3.2.1     2         2       True         True        430d
+[osuser@bastion ~]$ oc get prometheusrule -n dev-kafka
+NAME                   AGE
+prometheus-k8s-rules   429d
+[osuser@bastion ~]$ oc get prometheus -n openshift-monitoring -o yaml | grep -A 10 "namespaceSelector\|ruleNamespaceSelector"
+    ruleNamespaceSelector:
+      matchLabels:
+        openshift.io/cluster-monitoring: "true"
+    ruleSelector: {}
+    rules:
+      alert: {}
+    scrapeClasses:
+    - name: tls-client-certificate-auth
+      tlsConfig:
+        ca: {}
+        caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+[osuser@bastion ~]$ oc get deployment dev-console-console-deployment -n dev-kafka -o yaml | grep -A 2 "env\|PROMETHEUS\|METRIC\|BOOTSTRAP\|KAFKA"
+      - env:
+        - name: CONSOLE_CONFIG_PATH
+          value: /deployments/config/console-config.yaml
+--
+      - env:
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+[osuser@bastion ~]$ oc get configmap -n dev-kafka | grep console
+[osuser@bastion ~]$ oc get configmap -n dev-kafka | grep config
+dev-kafka-cluster-cruise-control-config          3      166d
+dev-kafka-cluster-entity-topic-operator-config   1      166d
+dev-kafka-cluster-entity-user-operator-config    1      166d
+dev-kafka-connect-mq-test-connect-config         2      96d
+dev-kafka-mirror-maker-mirrormaker2-config       2      116d
+grafana-config                                   1      426d
+kafka-config                                     2      166d
+[osuser@bastion ~]$ oc get configmap kafka-config -n dev-kafka -o yaml
+apiVersion: v1
+data:
+  client.properties: |
+    # Kafka Client Configuration for EPay Pre-Prod (KRaft Mode)
+    bootstrap.servers=dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc.cluster.local:9092
 
-# 2. Check what namespace Prometheus is watching
-oc get prometheus -n openshift-monitoring -o yaml | grep -A 10 "namespaceSelector\|ruleNamespaceSelector"
+    # Producer configuration
+    acks=all
+    retries=2147483647
+    max.in.flight.requests.per.connection=5
+    enable.idempotence=true
+    compression.type=snappy
+    batch.size=16384
+    linger.ms=5
+    buffer.memory=33554432
 
-# 3. Check the console deployment env vars fully
-oc get deployment dev-console-console-deployment -n dev-kafka -o yaml | grep -A 2 "env\|PROMETHEUS\|METRIC\|BOOTSTRAP\|KAFKA"
+    # Consumer configuration
+    auto.offset.reset=earliest
+    enable.auto.commit=false
+    max.poll.records=500
+    fetch.min.bytes=1
+    fetch.max.wait.ms=500
 
-# 4. Check the console ConfigMap for its config
-oc get configmap -n dev-kafka | grep console
-oc get configmap <console-configmap-name> -n dev-kafka -o yaml
+    # Security configuration (disabled for pre-prod)
+    security.protocol=PLAINTEXT
+  kraft-info.md: |
+    # Kafka KRaft Mode Configuration
 
-# 5. Verify Prometheus can reach dev-kafka namespace
-oc get rolebinding -n dev-kafka | grep prometheus
-oc get clusterrolebinding | grep prometheus
+    ## Overview
+    This Kafka cluster is running in KRaft mode (Kafka Raft) which eliminates the need for Apache Zookeeper.
 
-# 6. Check if broker port is named correctly (PodMonitor expects tcp-prometheus)
-oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A 5 "ports:"
+    ## Architecture
+    - **Controller Nodes**: 3 replicas handling metadata
+    - **Broker Nodes**: 3 replicas handling client requests
+    - **Storage**: JBOD (Just a Bunch of Disks) with multiple volumes per broker
 
-# 7. Verify actual kafka metrics ARE present (not just java_lang)
-oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- curl -s localhost:9404/metrics | grep "^kafka_" | head -20
+    ## Benefits of KRaft
+    - Simplified architecture (no Zookeeper dependency)
+    - Better scalability and performance
+    - Faster metadata operations
+    - Reduced operational complexity
+
+    ## Connection Details
+    - Bootstrap servers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc.cluster.local:9092
+    - TLS port: 9093 (if TLS is enabled)
+    - Plain port: 9092
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+    meta.helm.sh/release-name: epay-common
+    meta.helm.sh/release-namespace: dev-epay-common
+  creationTimestamp: "2025-11-11T09:58:35Z"
+  labels:
+    app.kubernetes.io/component: kafka-config
+    app.kubernetes.io/instance: epay-common
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka-config
+    environment: dev
+  name: kafka-config
+  namespace: dev-kafka
+  resourceVersion: "496829943"
+  uid: 2af6bbd4-1861-4049-9735-f48baec1b25b
+[osuser@bastion ~]$ oc get rolebinding -n dev-kafka | grep prometheus
+[osuser@bastion ~]$ oc get clusterrolebinding | grep prometheus
+dynatrace-extensions-prometheus                                              ClusterRole/dynatrace-extensions-prometheus                                             346d
+my-console-prometheus-clusterrolebinding                                     ClusterRole/my-console-prometheus-clusterrole                                           375d
+obo-prometheus-operator-admission-webhook-service-system:auth-delegator      ClusterRole/system:auth-delegator                                                       174d
+prometheus-adapter                                                           ClusterRole/prometheus-adapter                                                          596d
+prometheus-adapter-view                                                      ClusterRole/cluster-monitoring-view                                                     596d
+prometheus-k8s                                                               ClusterRole/prometheus-k8s                                                              596d
+prometheus-k8s-scheduler-resources                                           ClusterRole/prometheus-k8s-scheduler-resources                                          596d
+prometheus-operator                                                          ClusterRole/prometheus-operator                                                         596d
+prometheus-user-workload                                                     ClusterRole/prometheus-user-workload                                                    430d
+prometheus-user-workload-operator                                            ClusterRole/prometheus-user-workload-operator                                           430d
+[osuser@bastion ~]$ oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A 5 "ports:"
+    ports:
+    - containerPort: 8443
+      name: tcp-kafkaagent
+      protocol: TCP
+    - containerPort: 9091
+      name: tcp-replication
+[osuser@bastion ~]$ oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- curl -s localhost:9404/metrics | grep "^kafka_" | head -20
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="Invalid.topic.name"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="__consumer_offsets"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="adminPortal_merchantonboarding_topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="adminPortal_sms_notification_topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="dev-connect-cluster-configs"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="dev-connect-cluster-offsets"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="dev-connect-cluster-status"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="eventtopics"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="gst_invoice_download_topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="inb_offline_gateway_pooling_local"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local-process-bookingdetails-topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local-process-bulk-refund-topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_adminPortal_email_notification_topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_adminPortal_merchantOnboarding_topic"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_adminPortal_merchantonboarding_topic"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_adminportal_merchantonboarding_topic"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_ekuber_report_confirm_topic"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_ekuber_report_confirmation_topic"} 0.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_gst_invoice_download"} 1.0
+kafka_cluster_Partition_Value{name="AtMinIsr",partition="0",topic="local_gst_invoice_download_topic"} 0.0
+[osuser@bastion ~]$
