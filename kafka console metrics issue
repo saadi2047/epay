@@ -1,19 +1,138 @@
-[osuser@bastion ~]$ oc get console -n dev-kafka
-NAME      AGE
-cluster   597d
-[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|promotheus\|url"
-Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
-[osuser@bastion ~]$ oc get console cluster  -n dev-kafka -o yaml | grep -A 5 "metricsSource\|promotheus\|url"
-[osuser@bastion ~]$ oc get console -n dev-kafka
-NAME      AGE
-cluster   597d
-[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|prometheus\|url"
-Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
->   -o jsonpath='{.metadata.resourceVersion}'
-721983716[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
->   -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$
+Now it's crystal clear. Let me explain simply:
+
+---
+
+## What's Happening
+
+The `Console` CR (`console.streamshub.github.com`) does **not exist** in the cluster — only the OpenShift built-in `console.config.openshift.io` exists. This means the **StreamsHub Console operator is NOT managing the secret**. 
+
+The secret `dev-console-console-secret` was **created manually** and contains the config directly. Your Helm `kafka-console.yaml` template creates a `Console` CR but that CR is either not being applied or the operator is not installed.
+
+The secret still has the wrong URL:
+```
+url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"  ← WRONG
+```
+
+---
+
+## The Direct Fix — Update Secret via Helm in Pipeline
+
+In your `kafka-console.yaml` template, **add a Secret resource** that Helm will manage directly. Add this to the file:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-console-console-secret
+  namespace: {{ .Values.console.namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+type: Opaque
+stringData:
+  console-config.yaml: |
+    ---
+    kubernetes:
+      enabled: true
+    security:
+      subjects: []
+      roles: []
+      audit: []
+      oidc: null
+    metricsSources:
+    - name: "kafka-metrics"
+      type: "openshift-monitoring"
+      url: {{ .Values.console.metrics.prometheus.url | quote }}
+    schemaRegistries: []
+    kafka:
+      clusters:
+      - name: {{ .Values.console.kafkaClusters.name | quote }}
+        namespace: {{ .Values.console.kafkaClusters.namespace | quote }}
+        listener: {{ .Values.console.listener | quote }}
+        security:
+          subjects: []
+          roles: []
+          audit: []
+        properties:
+          security.protocol: "PLAINTEXT"
+          bootstrap.servers: "{{ .Values.console.kafkaClusters.name }}-kafka-bootstrap.{{ .Values.console.kafkaClusters.namespace }}.svc:9092"
+        adminProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+          default.api.timeout.ms: "30000"
+        consumerProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+        producerProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+```
+
+This way when the pipeline runs `helm upgrade`, it will update the secret with the correct Prometheus URL from `values.yaml`.
+
+---
+
+## But Right Now — Don't Wait for Pipeline
+
+Run this on bastion to fix it immediately:
+
+```bash
+# Step 1 - write correct config
+cat <<'EOF' > /tmp/console-config.yaml
+---
+kubernetes:
+  enabled: true
+security:
+  subjects: []
+  roles: []
+  audit: []
+  oidc: null
+metricsSources:
+- name: "kafka-metrics"
+  type: "openshift-monitoring"
+  url: "http://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+schemaRegistries: []
+kafka:
+  clusters:
+  - name: "dev-kafka-cluster"
+    namespace: "dev-kafka"
+    listener: "plain"
+    security:
+      subjects: []
+      roles: []
+      audit: []
+    properties:
+      security.protocol: "PLAINTEXT"
+      bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
+    adminProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+      default.api.timeout.ms: "30000"
+    consumerProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+    producerProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+EOF
+
+# Step 2 - patch the secret
+oc patch secret dev-console-console-secret -n dev-kafka \
+  --type='json' \
+  -p="[{\"op\": \"replace\", \"path\": \"/data/console-config.yaml\", \"value\": \"$(base64 -w 0 /tmp/console-config.yaml)\"}]"
+
+# Step 3 - verify secret updated
+oc get secret dev-console-console-secret -n dev-kafka \
+  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+
+# Step 4 - restart console
+oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+
+# Step 5 - watch it come up
+oc rollout status deployment/dev-console-console-deployment -n dev-kafka
+```
+
+Run all 5 steps and share the output.
