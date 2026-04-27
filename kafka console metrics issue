@@ -1,214 +1,23 @@
-[osuser@bastion ~]$ oc get project dev-kafka
-NAME        DISPLAY NAME   STATUS
-dev-kafka   dev-kafka      Active
-[osuser@bastion ~]$ oc project dev-kafka
-Now using project "dev-kafka" on server "https://api.dev.sbiepay.sbi:6443".
-[osuser@bastion ~]$ oc get pods
-NAME                                                 READY   STATUS    RESTARTS          AGE
-dev-console-console-deployment-77c9c88945-hv6pp      2/2     Running   0                 2d19h
-dev-kafka-cluster-broker-0                           1/1     Running   1 (2d20h ago)     4d20h
-dev-kafka-cluster-broker-1                           1/1     Running   3 (31h ago)       4d19h
-dev-kafka-cluster-broker-2                           1/1     Running   0                 4d20h
-dev-kafka-cluster-controller-3                       1/1     Running   0                 4d20h
-dev-kafka-cluster-controller-4                       1/1     Running   0                 4d20h
-dev-kafka-cluster-controller-5                       1/1     Running   0                 4d20h
-dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   128 (149m ago)    39d
-dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (27d ago)       39d
-dev-kafka-connect-mq-test-connect-0                  1/1     Running   694 (3m12s ago)   39d
-dev-kafka-connect-mq-test-connect-1                  0/1     Running   4182 (42s ago)    94d
-dev-kafka-connect-mq-test-connect-2                  1/1     Running   537 (3m11s ago)   39d
-dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                 116d
-[osuser@bastion ~]$ oc get configmap kafka-metrics -n dev-kafka
-NAME            DATA   AGE
-kafka-metrics   1      166d
-[osuser@bastion ~]$ oc get configmap kafka-metrics -n dev-kafka -o yaml
-apiVersion: v1
-data:
-  kafka-metrics-config.yaml: ""
-kind: ConfigMap
-metadata:
-  annotations:
-    meta.helm.sh/release-name: epay-common
-    meta.helm.sh/release-namespace: dev-epay-common
-  creationTimestamp: "2025-11-11T09:58:35Z"
-  labels:
-    app: strimzi
-    app.kubernetes.io/instance: epay-common
-    app.kubernetes.io/managed-by: Helm
-    environment: dev
-  name: kafka-metrics
-  namespace: dev-kafka
-  resourceVersion: "718131597"
-  uid: fa65ce2c-5269-431a-8675-725e61e373ff
-[osuser@bastion ~]$ oc get configmap kafka-metrics -n dev-kafka -o jsonpath='{.data}' | python3 -m json.tool
-{
-    "kafka-metrics-config.yaml": ""
-}
-[osuser@bastion ~]$ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A 8 "metricsConfig"
-    metricsConfig:
-      type: jmxPrometheusExporter
-      valueFrom:
-        configMapKeyRef:
-          key: kafka-metrics-config.yaml
-          name: kafka-metrics
-    version: 3.9.0
-status:
-  clusterId: 3aEx1xmUSTWs8xSplBnYtA
-[osuser@bastion ~]$ oc get kafka -n dev-kafka
-NAME                READY   METADATA STATE   WARNINGS
-dev-kafka-cluster   True    KRaft
-[osuser@bastion ~]$ oc get pods -n dev-kafka | grep broker
-dev-kafka-cluster-broker-0                           1/1     Running   1 (2d20h ago)     4d20h
-dev-kafka-cluster-broker-1                           1/1     Running   3 (31h ago)       4d20h
-dev-kafka-cluster-broker-2                           1/1     Running   0                 4d20h
-[osuser@bastion ~]$ oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- curl -s localhost:9404/metrics | head -20
-# HELP java_lang_ClassLoading_LoadedClassCount java.lang:name=null,type=ClassLoading,attribute=LoadedClassCount
-# TYPE java_lang_ClassLoading_LoadedClassCount untyped
-java_lang_ClassLoading_LoadedClassCount 10767.0
-# HELP java_lang_ClassLoading_TotalLoadedClassCount java.lang:name=null,type=ClassLoading,attribute=TotalLoadedClassCount
-# TYPE java_lang_ClassLoading_TotalLoadedClassCount untyped
-java_lang_ClassLoading_TotalLoadedClassCount 10841.0
-# HELP java_lang_ClassLoading_UnloadedClassCount java.lang:name=null,type=ClassLoading,attribute=UnloadedClassCount
-# TYPE java_lang_ClassLoading_UnloadedClassCount untyped
-java_lang_ClassLoading_UnloadedClassCount 74.0
-# HELP java_lang_ClassLoading_Verbose java.lang:name=null,type=ClassLoading,attribute=Verbose
-# TYPE java_lang_ClassLoading_Verbose untyped
-java_lang_ClassLoading_Verbose 0.0
-# HELP java_lang_CodeCacheManager_Valid java.lang:name=CodeCacheManager,type=MemoryManager,attribute=Valid
-# TYPE java_lang_CodeCacheManager_Valid untyped
-java_lang_CodeCacheManager_Valid{type="MemoryManager"} 1.0
-# HELP java_lang_CodeHeap_non_nmethods_CollectionUsageThresholdSupported java.lang:name=CodeHeap 'non-nmethods',type=MemoryPool,attribute=CollectionUsageThresholdSupported
-# TYPE java_lang_CodeHeap_non_nmethods_CollectionUsageThresholdSupported untyped
-java_lang_CodeHeap_non_nmethods_CollectionUsageThresholdSupported{type="MemoryPool"} 0.0
-# HELP java_lang_CodeHeap_non_nmethods_PeakUsage_committed java.lang.management.MemoryUsage java.lang:name=CodeHeap 'non-nmethods',type=MemoryPool,attribute=committed
-# TYPE java_lang_CodeHeap_non_nmethods_PeakUsage_committed untyped
-[osuser@bastion ~]$ oc get podmonitor -n dev-kafka
-NAME                       AGE
-bridge-metrics             429d
-cluster-operator-metrics   429d
-entity-operator-metrics    429d
-istio-proxies-monitor      16d
-kafka-resources-metrics    429d
-[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka -o yaml
-apiVersion: monitoring.coreos.com/v1
-kind: PodMonitor
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"monitoring.coreos.com/v1","kind":"PodMonitor","metadata":{"annotations":{},"labels":{"app":"strimzi"},"name":"kafka-resources-metrics","namespace":"dev-kafka"},"spec":{"namespaceSelector":{"matchNames":["test-metrics"]},"podMetricsEndpoints":[{"path":"/metrics","port":"tcp-prometheus","relabelings":[{"action":"labelmap","regex":"__meta_kubernetes_pod_label_(strimzi_io_.+)","replacement":"$1","separator":";"},{"action":"replace","regex":"(.*)","replacement":"$1","separator":";","sourceLabels":["__meta_kubernetes_namespace"],"targetLabel":"namespace"},{"action":"replace","regex":"(.*)","replacement":"$1","separator":";","sourceLabels":["__meta_kubernetes_pod_name"],"targetLabel":"kubernetes_pod_name"},{"action":"replace","regex":"(.*)","replacement":"$1","separator":";","sourceLabels":["__meta_kubernetes_pod_node_name"],"targetLabel":"node_name"},{"action":"replace","regex":"(.*)","replacement":"$1","separator":";","sourceLabels":["__meta_kubernetes_pod_host_ip"],"targetLabel":"node_ip"}]}],"selector":{"matchExpressions":[{"key":"strimzi.io/kind","operator":"In","values":["Kafka","KafkaConnect","KafkaMirrorMaker","KafkaMirrorMaker2"]}]}}}
-  creationTimestamp: "2025-02-21T11:28:54Z"
-  generation: 1
-  labels:
-    app: strimzi
-  name: kafka-resources-metrics
-  namespace: dev-kafka
-  resourceVersion: "167481360"
-  uid: 23f41d67-fdcf-4078-b371-aac85750efb7
-spec:
-  namespaceSelector:
-    matchNames:
-    - test-metrics
-  podMetricsEndpoints:
-  - path: /metrics
-    port: tcp-prometheus
-    relabelings:
-    - action: labelmap
-      regex: __meta_kubernetes_pod_label_(strimzi_io_.+)
-      replacement: $1
-      separator: ;
-    - action: replace
-      regex: (.*)
-      replacement: $1
-      separator: ;
-      sourceLabels:
-      - __meta_kubernetes_namespace
-      targetLabel: namespace
-    - action: replace
-      regex: (.*)
-      replacement: $1
-      separator: ;
-      sourceLabels:
-      - __meta_kubernetes_pod_name
-      targetLabel: kubernetes_pod_name
-    - action: replace
-      regex: (.*)
-      replacement: $1
-      separator: ;
-      sourceLabels:
-      - __meta_kubernetes_pod_node_name
-      targetLabel: node_name
-    - action: replace
-      regex: (.*)
-      replacement: $1
-      separator: ;
-      sourceLabels:
-      - __meta_kubernetes_pod_host_ip
-      targetLabel: node_ip
-  selector:
-    matchExpressions:
-    - key: strimzi.io/kind
-      operator: In
-      values:
-      - Kafka
-      - KafkaConnect
-      - KafkaMirrorMaker
-      - KafkaMirrorMaker2
-[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka -o jsonpath='{.spec.selector}'
-{"matchExpressions":[{"key":"strimzi.io/kind","operator":"In","values":["Kafka","KafkaConnect","KafkaMirrorMaker","KafkaMirrorMaker2"]}]}[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc get pods -n dev-kafka --show-labels | grep broker
-dev-kafka-cluster-broker-0                           1/1     Running   1 (2d20h ago)      4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=true,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-broker,strimzi.io/controller-role=false,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-broker-0,strimzi.io/pool-name=broker
-dev-kafka-cluster-broker-1                           1/1     Running   3 (31h ago)        4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=true,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-broker,strimzi.io/controller-role=false,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-broker-1,strimzi.io/pool-name=broker
-dev-kafka-cluster-broker-2                           1/1     Running   0                  4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=true,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-broker,strimzi.io/controller-role=false,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-broker-2,strimzi.io/pool-name=broker
-dev-kafka-cluster-controller-3                       1/1     Running   0                  4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=false,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-controller,strimzi.io/controller-role=true,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-controller-3,strimzi.io/pool-name=controller
-dev-kafka-cluster-controller-4                       1/1     Running   0                  4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=false,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-controller,strimzi.io/controller-role=true,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-controller-4,strimzi.io/pool-name=controller
-dev-kafka-cluster-controller-5                       1/1     Running   0                  4d20h   app.kubernetes.io/instance=dev-kafka-cluster,app.kubernetes.io/managed-by=strimzi-cluster-operator,app.kubernetes.io/name=kafka,app.kubernetes.io/part-of=strimzi-dev-kafka-cluster,com.company=Red_Hat,environment=dev,rht.comp=AMQ_Streams,rht.comp_ver=3.0.1,rht.prod_name=Red_Hat_Application_Foundations,rht.prod_ver=2025.Q3,rht.subcomp=kafka-broker,rht.subcomp_t=application,strimzi.io/broker-role=false,strimzi.io/cluster=dev-kafka-cluster,strimzi.io/component-type=kafka,strimzi.io/controller-name=dev-kafka-cluster-controller,strimzi.io/controller-role=true,strimzi.io/controller=strimzipodset,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka,strimzi.io/pod-name=dev-kafka-cluster-controller-5,strimzi.io/pool-name=controller
-[osuser@bastion ~]$ oc get pods -n openshift-monitoring | grep prometheus
-prometheus-k8s-0                                         6/6     Running   1 (27h ago)   12d
-prometheus-k8s-1                                         6/6     Running   1 (27h ago)   12d
-prometheus-operator-6c4dff46df-sthmj                     2/2     Running   0             13d
-prometheus-operator-admission-webhook-6d6fd65f65-ht6wz   1/1     Running   1 (8d ago)    13d
-prometheus-operator-admission-webhook-6d6fd65f65-zthhn   1/1     Running   1 (31h ago)   13d
-[osuser@bastion ~]$ oc get pods -n monitoring | grep prometheus
-No resources found in monitoring namespace.
-[osuser@bastion ~]$ oc get kafkaconsole -n dev-kafka
-error: the server doesn't have a resource type "kafkaconsole"
-[osuser@bastion ~]$ oc get deployment -n dev-kafka | grep console
-dev-console-console-deployment      1/1     1            1           5d19h
-[osuser@bastion ~]$ oc get dev-console-console-deployment -n dev-kafka
-error: the server doesn't have a resource type "dev-console-console-deployment"
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i "metric\|prometheus\|error" | tail -30
-Defaulted container "console-api" out of: console-api, console-ui
-2026-04-27 06:13:14,279 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=7591e87c-bce4-462b-87aa-be42e5d277bf title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777270394277, tries=1, nextAllowedTryMs=1777270394370) timed out at 1777270394278 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777270394277, tries=1, nextAllowedTryMs=1777270394370) timed out at 1777270394278 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 5 due to node 1 being disconnected
-2026-04-27 06:14:14,270 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-1) error=id=f327e0cc-fac5-40d9-b48b-98093ef50a1f title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
-2026-04-27 06:15:14,248 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=17ce6254-b2ed-41ec-bd50-21fbdce0378a title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:23:14,285 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-2) error=id=b25e3b6e-058c-4ce6-a218-2d37a8cb4d38 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:24:14,264 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=006c1549-0344-4985-b83a-2d65fd9705b6 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:25:14,241 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-1) error=id=7e2a2d1b-47a1-458a-82fd-ada24a017967 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:26:14,248 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=8c72afeb-60ff-410f-8bad-2be7d11ecd2d title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:30:14,205 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=abccbd68-10e8-40c9-a42d-00e301b11e73 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777271414200, tries=1, nextAllowedTryMs=1777271414309) timed out at 1777271414204 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777271414200, tries=1, nextAllowedTryMs=1777271414309) timed out at 1777271414204 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 5 due to node 2 being disconnected
-2026-04-27 06:31:18,739 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=1986f71e-952c-42f3-ac1b-bc573f71f9d2 title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
-2026-04-27 06:34:14,215 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=63085125-ca3d-40c0-a286-55ccbbe534cb title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
-2026-04-27 06:35:14,232 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=a192ad5b-cb23-4af4-9140-77e722a12c81 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777271714227, tries=1, nextAllowedTryMs=1777271714333) timed out at 1777271714232 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777271714227, tries=1, nextAllowedTryMs=1777271714333) timed out at 1777271714232 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 5 due to node 1 being disconnected
-2026-04-27 06:37:14,237 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=b70ac527-0963-4975-ac85-c6a2cfc60f6c title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
-2026-04-27 06:38:14,258 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-1) error=id=1da3f7dc-209e-4778-ba81-a1104d34e872 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:39:14,250 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=92adf9da-bb23-4bcf-be93-c3930a95183a title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777271954245, tries=1, nextAllowedTryMs=1777271954356) timed out at 1777271954250 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777271954245, tries=1, nextAllowedTryMs=1777271954356) timed out at 1777271954250 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-2026-04-27 06:39:43,627 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=991294a2-4a02-410b-a230-d71240b5f201 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777271983622, tries=1, nextAllowedTryMs=1777271983722) timed out at 1777271983626 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777271983622, tries=1, nextAllowedTryMs=1777271983722) timed out at 1777271983626 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 5 due to node 2 being disconnected
-2026-04-27 06:39:48,696 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=abd6e30d-8677-4895-8181-096831a7e429 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777271988690, tries=1, nextAllowedTryMs=1777271988798) timed out at 1777271988696 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777271988690, tries=1, nextAllowedTryMs=1777271988798) timed out at 1777271988696 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-2026-04-27 06:39:56,190 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=19c09edf-024d-4b8a-9696-c1b3aaf42ff2 title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: describeMetadataQuorum' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: describeMetadataQuorum
-2026-04-27 06:40:06,177 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=b8089df7-1e6b-4898-b603-34ce15a4911e title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-04-27 06:40:16,185 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-1) error=id=d22ff684-a3cf-49a2-8b5f-959c0b17655b title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777272016178, tries=1, nextAllowedTryMs=1777272016280) timed out at 1777272016182 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777272016178, tries=1, nextAllowedTryMs=1777272016280) timed out at 1777272016182 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 1 being disconnected
-2026-04-27 06:40:36,227 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-2) error=id=826f0e3e-a488-487a-aa13-fd98d7922621 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777272036222, tries=1, nextAllowedTryMs=1777272036309) timed out at 1777272036226 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777272036222, tries=1, nextAllowedTryMs=1777272036309) timed out at 1777272036226 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-2026-04-27 06:40:46,198 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=50535131-e386-49b0-9a87-8b95b3c2530f title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777272046192, tries=1, nextAllowedTryMs=1777272046314) timed out at 1777272046197 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777272046192, tries=1, nextAllowedTryMs=1777272046314) timed out at 1777272046197 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-[osuser@bastion ~]$ oc describe deployment/dev-console-console-deployment -n dev-kafka | grep -i "prometheus\|metric"
-[osuser@bastion ~]$
+# 1. Confirm what Prometheus namespace is being used
+oc get prometheus -A
+oc get prometheusrule -n dev-kafka
+
+# 2. Check what namespace Prometheus is watching
+oc get prometheus -n openshift-monitoring -o yaml | grep -A 10 "namespaceSelector\|ruleNamespaceSelector"
+
+# 3. Check the console deployment env vars fully
+oc get deployment dev-console-console-deployment -n dev-kafka -o yaml | grep -A 2 "env\|PROMETHEUS\|METRIC\|BOOTSTRAP\|KAFKA"
+
+# 4. Check the console ConfigMap for its config
+oc get configmap -n dev-kafka | grep console
+oc get configmap <console-configmap-name> -n dev-kafka -o yaml
+
+# 5. Verify Prometheus can reach dev-kafka namespace
+oc get rolebinding -n dev-kafka | grep prometheus
+oc get clusterrolebinding | grep prometheus
+
+# 6. Check if broker port is named correctly (PodMonitor expects tcp-prometheus)
+oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A 5 "ports:"
+
+# 7. Verify actual kafka metrics ARE present (not just java_lang)
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- curl -s localhost:9404/metrics | grep "^kafka_" | head -20
