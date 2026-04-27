@@ -1,27 +1,230 @@
-[osuser@bastion ~]$ oc get console.console.streamshub.github.com -n dev-kafka
-NAME          AGE
-dev-console   5d22h
-[osuser@bastion ~]$ oc get pods
-NAME                                                 READY   STATUS    RESTARTS          AGE
-dev-console-console-deployment-77c9c88945-mlfgj      2/2     Running   0                 109m
-dev-kafka-cluster-broker-0                           1/1     Running   1 (2d23h ago)     4d23h
-dev-kafka-cluster-broker-1                           1/1     Running   3 (34h ago)       4d23h
-dev-kafka-cluster-broker-2                           1/1     Running   0                 4d23h
-dev-kafka-cluster-controller-3                       1/1     Running   0                 4d23h
-dev-kafka-cluster-controller-4                       1/1     Running   0                 4d23h
-dev-kafka-cluster-controller-5                       1/1     Running   0                 4d23h
-dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   132 (100m ago)    39d
-dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (27d ago)       39d
-dev-kafka-connect-mq-test-connect-0                  1/1     Running   709 (9m39s ago)   39d
-dev-kafka-connect-mq-test-connect-1                  1/1     Running   4194 (29m ago)    95d
-dev-kafka-connect-mq-test-connect-2                  1/1     Running   548 (29m ago)     39d
-dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                 116d
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment-77c9c88945-mlfgj | grep -i prometheus
-Error from server (NotFound): deployments.apps "dev-console-console-deployment-77c9c88945-mlfgj" not found
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka   -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|prometheus\|url"
-Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o yaml | grep managed-by
-    app.kubernetes.io/managed-by: streamshub-console-operator
-[osuser@bastion ~]$
+Good — this output finally gives a **clear, no-confusion picture**. I’ll explain straight and then tell you **exact fix**.
+
+---
+
+# 🚨 WHAT YOUR OUTPUT PROVES
+
+## ✅ Operator is working
+
+```bash
+oc get console.console.streamshub.github.com -n dev-kafka
+```
+
+✔ `dev-console` exists → operator is active
+
+---
+
+## ❌ BUT Secret is STILL WRONG
+
+```bash
+oc get secret dev-console-console-secret ...
+```
+
+👉 Current value:
+
+```text
+https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi ❌
+```
+
+👉 Expected:
+
+```text
+http://thanos-querier.openshift-monitoring.svc.cluster.local:9091 ✅
+```
+
+---
+
+## 🔴 MOST IMPORTANT OBSERVATION
+
+```bash
+managed-by: streamshub-console-operator
+```
+
+👉 Means:
+
+```text
+Operator IS controlling the Secret ✅
+BUT it is NOT updating it ❌
+```
+
+---
+
+# 💥 ROOT CAUSE (FINAL)
+
+👉 Your **Console CR change is NOT applied / NOT reconciled**
+
+That’s why:
+
+* CR updated (maybe in Git) ❌ not applied properly
+* Operator still using OLD config ❌
+* Secret unchanged ❌
+
+---
+
+# 🚨 ALSO YOUR COMMAND MISTAKE
+
+You ran:
+
+```bash
+oc get console dev-console ❌
+```
+
+👉 WRONG resource
+
+Correct is:
+
+```bash
+oc get consoles.console.streamshub.github.com dev-console -n dev-kafka
+```
+
+---
+
+# 🎯 STEP-BY-STEP FINAL FIX (DO THIS NOW)
+
+---
+
+## ✅ STEP 1: Check actual Console CR (REAL SOURCE)
+
+```bash
+oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
+```
+
+👉 You will likely see:
+
+```yaml
+url: https://thanos-querier-openshift-monitoring.apps... ❌
+```
+
+---
+
+## ✅ STEP 2: Fix CR DIRECTLY (no pipeline confusion)
+
+```bash
+oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
+```
+
+---
+
+### 🔥 CHANGE THIS:
+
+```yaml
+metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+    url: https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi ❌
+```
+
+---
+
+### ✅ TO THIS:
+
+```yaml
+metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+    url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+```
+
+---
+
+## ✅ STEP 3: Save & exit
+
+👉 Operator will automatically:
+
+```text
+CR updated → Secret updated → Pod restarted
+```
+
+---
+
+## ✅ STEP 4: VERIFY SECRET UPDATED
+
+```bash
+oc get secret dev-console-console-secret -n dev-kafka \
+-o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+```
+
+👉 MUST show:
+
+```text
+http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+```
+
+---
+
+## ✅ STEP 5: Check logs
+
+```bash
+oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
+```
+
+👉 ❌ This should disappear:
+
+```text
+Prometheus URL is not configured
+```
+
+---
+
+# ⚠️ IMPORTANT (WHY PIPELINE DIDN’T WORK)
+
+👉 Your Helm deploy is targeting:
+
+```text
+namespace: dev-epay-common
+```
+
+👉 But Console CR is in:
+
+```text
+namespace: dev-kafka
+```
+
+👉 So:
+
+```text
+Helm changes NOT affecting Console CR ❌
+```
+
+---
+
+# 🎯 FINAL HINGLISH TRUTH
+
+👉 Tumhara issue simple hai:
+
+* Operator sahi hai ✅
+* Kafka sahi hai ✅
+* Prometheus sahi hai ✅
+
+👉 Problem sirf:
+
+```text
+Console CR me galat URL hai ❌
+```
+
+---
+
+# 🚀 WHAT YOU SHOULD DO AFTER FIX
+
+👉 After manual fix works:
+
+Then fix your Git:
+
+* ensure Helm deploys to `dev-kafka`
+* OR manage Console CR separately
+
+---
+
+# 🎯 FINAL ONE-LINE
+
+👉 Fix **Console CR URL**, not Secret, not Kafka, not Prometheus
+
+---
+
+If after this still not working, send:
+
+```bash
+oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
+```
+
+👉 Now we are at **last 1% — will close fully**.
