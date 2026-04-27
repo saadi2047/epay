@@ -1,0 +1,131 @@
+Smart approach! Verify first, then change. Here are all the verification commands to run from your bastion:
+
+---
+
+## Phase 1 — Verify ConfigMap
+
+```bash
+# Check if ConfigMap exists
+oc get configmap kafka-metrics -n dev-kafka
+
+# Check what KEY is inside the ConfigMap (this is the critical one)
+oc get configmap kafka-metrics -n dev-kafka -o yaml
+
+# Just show the data keys (quick check)
+oc get configmap kafka-metrics -n dev-kafka -o jsonpath='{.data}' | python3 -m json.tool
+```
+
+**What to look for:** Does the key say `kafka-metrics.yaml` or `kafka-metrics-config.yaml`? And does the value have actual content or is it empty?
+
+---
+
+## Phase 2 — Verify Kafka CR has metricsConfig
+
+```bash
+# Check if metricsConfig is present in the Kafka CR
+oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A 8 "metricsConfig"
+
+# Also check the overall Kafka CR status
+oc get kafka -n dev-kafka
+```
+
+**What to look for:** If `metricsConfig` section is missing entirely, that's why metrics are not exposed.
+
+---
+
+## Phase 3 — Verify Kafka Brokers are Exposing Metrics
+
+```bash
+# List all broker pods
+oc get pods -n dev-kafka | grep broker
+
+# Pick ONE broker pod name from above, then run:
+oc exec -n dev-kafka <broker-pod-name> -- curl -s localhost:9404/metrics | head -20
+
+# If curl is not available on the pod:
+oc exec -n dev-kafka <broker-pod-name> -- wget -qO- localhost:9404/metrics | head -20
+```
+
+**What to look for:** If port 9404 is refused → metricsConfig not applied. If you get `kafka_` metrics output → metrics ARE exposed and the problem is in Prometheus/Console config.
+
+---
+
+## Phase 4 — Verify PodMonitor
+
+```bash
+# List all podmonitors
+oc get podmonitor -n dev-kafka
+
+# Check the kafka-resources-metrics podmonitor in detail
+oc get podmonitor kafka-resources-metrics -n dev-kafka -o yaml
+
+# Check what labels it is selecting on pods
+oc get podmonitor kafka-resources-metrics -n dev-kafka -o jsonpath='{.spec.selector}'
+```
+
+**What to look for:** The `podMetricsEndpoints.port` should be `tcp-prometheus` or `9404`. The `selector.matchLabels` should match actual broker pod labels.
+
+---
+
+## Phase 5 — Verify Pod Labels Match PodMonitor Selector
+
+```bash
+# Get labels on a broker pod (replace with actual pod name)
+oc get pod <broker-pod-name> -n dev-kafka --show-labels
+
+# Or show labels for all kafka pods
+oc get pods -n dev-kafka --show-labels | grep broker
+```
+
+**What to look for:** The labels on broker pods must match what the PodMonitor is selecting. If they don't match, Prometheus won't scrape them.
+
+---
+
+## Phase 6 — Verify Prometheus is Scraping
+
+```bash
+# Check if Prometheus can see the targets
+# First find the prometheus pod (it may be in a different namespace)
+oc get pods -n openshift-monitoring | grep prometheus
+# or
+oc get pods -n monitoring | grep prometheus
+
+# Port-forward Prometheus UI
+oc port-forward svc/prometheus-k8s 9090:9090 -n openshift-monitoring
+
+# Then open in browser:
+# http://localhost:9090/targets
+# Search for "dev-kafka" targets and check if they are UP or DOWN
+```
+
+---
+
+## Phase 7 — Verify Kafka Console Config
+
+```bash
+# Check kafka-console CR
+oc get kafkaconsole -n dev-kafka
+# or check the console deployment
+oc get deployment -n dev-kafka | grep console
+
+# Check console pod logs for any metric connection errors
+oc logs -n dev-kafka deployment/<console-deployment-name> | grep -i "metric\|prometheus\|error" | tail -30
+
+# Check console config/env for prometheus URL
+oc describe deployment <console-deployment-name> -n dev-kafka | grep -i "prometheus\|metric"
+```
+
+---
+
+## Quick Summary — What Each Result Tells You
+
+| Command Result | Meaning |
+|---|---|
+| ConfigMap exists but data is empty | `Files.Get` failed — wrong filename in template |
+| ConfigMap key is `kafka-metrics-config.yaml` | Key mismatch — needs to be `kafka-metrics.yaml` |
+| No `metricsConfig` in Kafka CR | metricsConfig was never applied |
+| Port 9404 connection refused | Brokers not exposing metrics |
+| PodMonitor selector doesn't match pod labels | Prometheus not scraping brokers |
+| Prometheus targets show DOWN | Network or auth issue between Prometheus and pods |
+
+Run these and share the outputs — we can then make a pinpoint fix with zero guesswork before touching anything.
