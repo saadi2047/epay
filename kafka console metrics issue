@@ -1,6 +1,104 @@
 console.yaml
 
+claude
+________________________________________________________________________
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: dev-console
+  namespace: dev-kafka
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+          - name: default.api.timeout.ms
+            value: '30000'
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: '30000'
+  metricsSources:
+    - name: "kafka-metrics"
+      type: "openshift-monitoring"
+      url: {{ .Values.console.metrics.prometheus.url | quote }}
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-console-console-secret
+  namespace: dev-kafka
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    environment: {{ .Values.global.environment }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+type: Opaque
+stringData:
+  console-config.yaml: |
+    ---
+    kubernetes:
+      enabled: true
+    security:
+      subjects: []
+      roles: []
+      audit: []
+      oidc: null
+    metricsSources:
+    - name: "kafka-metrics"
+      type: "openshift-monitoring"
+      url: {{ .Values.console.metrics.prometheus.url | quote }}
+    schemaRegistries: []
+    kafka:
+      clusters:
+      - name: "dev-kafka-cluster"
+        namespace: "dev-kafka"
+        listener: "plain"
+        security:
+          subjects: []
+          roles: []
+          audit: []
+        properties:
+          security.protocol: "PLAINTEXT"
+          bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
+        adminProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+          default.api.timeout.ms: "30000"
+        consumerProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+        producerProperties:
+          security.protocol: "PLAINTEXT"
+          request.timeout.ms: "30000"
+
+
+
+
+
+__________________________________________________________________________________
+chatgpt
+
 apiVersion: console.streamshub.github.com/v1alpha1
 kind: Console
 metadata:
@@ -44,17 +142,55 @@ spec:
             value: '30000'
 
   metricsSources:
-    # - name: k8s
-    #   type: openshift-monitoring
-      #url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
     - name: "kafka-metrics"
       type: "openshift-monitoring"
       url: {{ .Values.console.metrics.prometheus.url | quote }}
 
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-console-console-secret
+  namespace: dev-kafka
+  labels:
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  console-config.yaml: |
+    kubernetes:
+      enabled: true
+
+    metricsSources:
+      - name: kafka-metrics
+        type: openshift-monitoring
+        url: {{ .Values.console.metrics.prometheus.url | quote }}
+
+    kafka:
+      clusters:
+        - name: dev-kafka-cluster
+          namespace: dev-kafka
+          listener: plain
+          properties:
+            security.protocol: PLAINTEXT
+            bootstrap.servers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
+
+          adminProperties:
+            security.protocol: PLAINTEXT
+            request.timeout.ms: "30000"
+            default.api.timeout.ms: "30000"
+
+          consumerProperties:
+            security.protocol: PLAINTEXT
+            request.timeout.ms: "30000"
+
+          producerProperties:
+            security.protocol: PLAINTEXT
+            request.timeout.ms: "30000"
 
 
 
-
+________________________________________________________________________________________
 values.yaml
 
 console:
