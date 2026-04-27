@@ -18,3 +18,38 @@ oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
 
 oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
 
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
+Defaulted container "console-api" out of: console-api, console-ui
+2026-04-27 10:50:05,256 INFO  [io.qua.htt.access-log] (executor-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 16ms 395
+2026-04-27 10:51:06,232 INFO  [io.qua.htt.access-log] (executor-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+deployment.apps/dev-console-console-deployment restarted
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+> -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
+Defaulted container "console-api" out of: console-api, console-ui
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
+Defaulted container "console-api" out of: console-api, console-ui
+INFO exec -a "java" java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -cp "." -jar /deployments/quarkus-run.jar
+INFO running in /deployments
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2026-04-27 11:01:14,302 INFO  [com.git.str.con.api.sup.fac.ConsoleConfigFactory] (main) Loading console configuration from file:/deployments/config/console-config.yaml
+2026-04-27 11:01:14,685 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkas' with unstable version 'v1beta2'
+2026-04-27 11:01:16,369 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkanodepools' with unstable version 'v1beta2'
+2026-04-27 11:01:16,711 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkatopics' with unstable version 'v1beta2'
+2026-04-27 11:01:16,841 INFO  [com.git.str.con.LoggingConfigWatcher] (main) No log config files set to monitor
+2026-04-27 11:01:16,991 INFO  [io.quarkus] (main) console-api 0.8.6.redhat-00002 on JVM (powered by Quarkus 3.20.2.redhat-00004) started in 8.097s. Listening on: http://0.0.0.0:8080
+2026-04-27 11:01:16,992 INFO  [io.quarkus] (main) Profile prod activated.
+2026-04-27 11:01:16,993 INFO  [io.quarkus] (main) Installed features: [cdi, hibernate-validator, kubernetes-client, micrometer, oidc, oidc-client, rest, rest-client, rest-jackson, security, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
+2026-04-27 11:01:29,915 INFO  [com.git.str.con.api.ClientFactory] (vert.x-eventloop-thread-3) Added KafkaContext for cluster dev-kafka/dev-kafka-cluster, id=3aEx1xmUSTWs8xSplBnYtA, global=false
+2026-04-27 11:01:30,174 INFO  [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 404ms 395
+2026-04-27 11:01:30,174 INFO  [io.qua.htt.access-log] (executor-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 371ms 395
+[osuser@bastion ~]$
