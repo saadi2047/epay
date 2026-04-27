@@ -17,31 +17,63 @@ oc get namespace dev-kafka --show-labels
 
 
 
+Perfect. Only `dev-kafka` has the wrong PodMonitor. Others don't have it yet. Here is your exact step-by-step plan:
 
-# Check all 4 environments namespace selector
-for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
-  echo "=== $ns ==="
-  oc get podmonitor kafka-resources-metrics -n $ns \
-    -o jsonpath='{.spec.namespaceSelector}' 2>/dev/null || echo "NOT FOUND"
-  echo ""
-done
+---
 
-[osuser@bastion ~]$ for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
->   echo "=== $ns ==="
->   oc get podmonitor kafka-resources-metrics -n $ns \
->     -o jsonpath='{.spec.namespaceSelector}' 2>/dev/null || echo "NOT FOUND"
->   echo ""
-> done
-=== dev-kafka ===
-{"matchNames":["test-metrics"]}
-=== sit-kafka ===
-NOT FOUND
+## Start Here — Step by Step
 
-=== uat-kafka ===
-NOT FOUND
+---
 
-=== int-kafka ===
-NOT FOUND
+### Step 1 — Fix PodMonitor namespace (bastion, safe, only touches dev-kafka)
 
-[osuser@bastion ~]$
+```bash
+oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
+  -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
+```
 
+Verify:
+```bash
+oc get podmonitor kafka-resources-metrics -n dev-kafka \
+  -o jsonpath='{.spec.namespaceSelector}'
+```
+
+Expected: `{"matchNames":["dev-kafka"]}`
+
+---
+
+### Step 2 — Label dev-kafka namespace (bastion, safe)
+
+```bash
+oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
+```
+
+Verify:
+```bash
+oc get namespace dev-kafka --show-labels
+```
+
+---
+
+### Step 3 — Read the Console Secret (bastion, read-only)
+
+```bash
+oc get secret dev-console-console-secret -n dev-kafka \
+  -o jsonpath='{.data.console-config\.yaml}' | base64 -d
+```
+
+Share this output here — we need to see the current console config before editing it.
+
+---
+
+### Step 4 — Wait 2-3 minutes after Steps 1 & 2, then verify Prometheus is scraping
+
+```bash
+oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
+  curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
+  | python3 -m json.tool | head -20
+```
+
+---
+
+**Start with Step 1 now and share each output before moving to next step.**
