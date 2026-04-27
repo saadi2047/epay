@@ -1,1 +1,27 @@
-oc get secret dev-console-console-secret -n dev-kafka -o yaml | grep managed-by
+[osuser@bastion ~]$ oc get console.console.streamshub.github.com -n dev-kafka
+NAME          AGE
+dev-console   5d22h
+[osuser@bastion ~]$ oc get pods
+NAME                                                 READY   STATUS    RESTARTS          AGE
+dev-console-console-deployment-77c9c88945-mlfgj      2/2     Running   0                 109m
+dev-kafka-cluster-broker-0                           1/1     Running   1 (2d23h ago)     4d23h
+dev-kafka-cluster-broker-1                           1/1     Running   3 (34h ago)       4d23h
+dev-kafka-cluster-broker-2                           1/1     Running   0                 4d23h
+dev-kafka-cluster-controller-3                       1/1     Running   0                 4d23h
+dev-kafka-cluster-controller-4                       1/1     Running   0                 4d23h
+dev-kafka-cluster-controller-5                       1/1     Running   0                 4d23h
+dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   132 (100m ago)    39d
+dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (27d ago)       39d
+dev-kafka-connect-mq-test-connect-0                  1/1     Running   709 (9m39s ago)   39d
+dev-kafka-connect-mq-test-connect-1                  1/1     Running   4194 (29m ago)    95d
+dev-kafka-connect-mq-test-connect-2                  1/1     Running   548 (29m ago)     39d
+dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                 116d
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment-77c9c88945-mlfgj | grep -i prometheus
+Error from server (NotFound): deployments.apps "dev-console-console-deployment-77c9c88945-mlfgj" not found
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka   -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|prometheus\|url"
+Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o yaml | grep managed-by
+    app.kubernetes.io/managed-by: streamshub-console-operator
+[osuser@bastion ~]$
