@@ -1,117 +1,3 @@
-error calude
-
-Deploying "epay-common" to dev-epay-common...
-Chart path: /tmp/builds/epay/devops/deployment/dev/charts/epay_common
-Executing: helm upgrade --install "epay-common" /tmp/builds/epay/devops/deployment/dev/charts/epay_common   --namespace dev-epay-common   --history-max 10   --timeout 15m   -f /tmp/builds/epay/devops/deployment/dev/charts/epay_common/values.yaml   --reset-values
-Error: UPGRADE FAILED: Unable to continue with update: Secret "dev-console-console-secret" in namespace "dev-kafka" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: key "app.kubernetes.io/managed-by" must equal "Helm": current value is "streamshub-console-operator"; annotation validation error: missing key "meta.helm.sh/release-name": must be set to "epay-common"; annotation validation error: missing key "meta.helm.sh/release-namespace": must be set to "dev-epay-common"
-Error: Helm deployment failed
-Last 5 revisions:
-Error: release name is invalid: "epay-common"
-Cleaning up project directory and file based variables
-00:02
-ERROR: Job failed: exit code 1
-
-console.yaml
-
-claude
-________________________________________________________________________
-apiVersion: console.streamshub.github.com/v1alpha1
-kind: Console
-metadata:
-  name: dev-console
-  namespace: dev-kafka
-spec:
-  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
-  kafkaClusters:
-    - name: dev-kafka-cluster
-      namespace: dev-kafka
-      listener: plain
-      properties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-      adminProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: '30000'
-          - name: default.api.timeout.ms
-            value: '30000'
-      consumerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: '30000'
-      producerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: '30000'
-  metricsSources:
-    - name: "kafka-metrics"
-      type: "openshift-monitoring"
-      url: {{ .Values.console.metrics.prometheus.url | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: dev-console-console-secret
-  namespace: dev-kafka
-  labels:
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    environment: {{ .Values.global.environment }}
-  annotations:
-    meta.helm.sh/release-name: {{ .Release.Name }}
-    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
-type: Opaque
-stringData:
-  console-config.yaml: |
-    ---
-    kubernetes:
-      enabled: true
-    security:
-      subjects: []
-      roles: []
-      audit: []
-      oidc: null
-    metricsSources:
-    - name: "kafka-metrics"
-      type: "openshift-monitoring"
-      url: {{ .Values.console.metrics.prometheus.url | quote }}
-    schemaRegistries: []
-    kafka:
-      clusters:
-      - name: "dev-kafka-cluster"
-        namespace: "dev-kafka"
-        listener: "plain"
-        security:
-          subjects: []
-          roles: []
-          audit: []
-        properties:
-          security.protocol: "PLAINTEXT"
-          bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
-        adminProperties:
-          security.protocol: "PLAINTEXT"
-          request.timeout.ms: "30000"
-          default.api.timeout.ms: "30000"
-        consumerProperties:
-          security.protocol: "PLAINTEXT"
-          request.timeout.ms: "30000"
-        producerProperties:
-          security.protocol: "PLAINTEXT"
-          request.timeout.ms: "30000"
-
-
-
-
-
-__________________________________________________________________________________
-chatgpt
-
 apiVersion: console.streamshub.github.com/v1alpha1
 kind: Console
 metadata:
@@ -136,68 +22,25 @@ spec:
           - name: security.protocol
             value: PLAINTEXT
           - name: request.timeout.ms
-            value: '30000'
+            value: "30000"
           - name: default.api.timeout.ms
-            value: '30000'
+            value: "30000"
 
       consumerProperties:
         values:
           - name: security.protocol
             value: PLAINTEXT
           - name: request.timeout.ms
-            value: '30000'
+            value: "30000"
 
       producerProperties:
         values:
           - name: security.protocol
             value: PLAINTEXT
           - name: request.timeout.ms
-            value: '30000'
+            value: "30000"
 
   metricsSources:
     - name: kafka-metrics
       type: openshift-monitoring
-      url: {{ .Values.console.metrics.prometheus.url | quote }}
-
----
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: dev-console-console-secret
-  namespace: dev-kafka
-  labels:
-    app.kubernetes.io/managed-by: Helm
-
-type: Opaque
-stringData:
-  console-config.yaml: |
-    kubernetes:
-      enabled: true
-
-    metricsSources:
-      - name: kafka-metrics
-        type: openshift-monitoring
-        url: {{ .Values.console.metrics.prometheus.url | quote }}
-
-    kafka:
-      clusters:
-        - name: dev-kafka-cluster
-          namespace: dev-kafka
-          listener: plain
-          properties:
-            security.protocol: PLAINTEXT
-            bootstrap.servers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
-
-          adminProperties:
-            security.protocol: PLAINTEXT
-            request.timeout.ms: "30000"
-            default.api.timeout.ms: "30000"
-
-          consumerProperties:
-            security.protocol: PLAINTEXT
-            request.timeout.ms: "30000"
-
-          producerProperties:
-            security.protocol: PLAINTEXT
-            request.timeout.ms: "30000"
+      url: "http://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
