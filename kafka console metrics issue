@@ -1,3 +1,16 @@
+error calude
+
+Deploying "epay-common" to dev-epay-common...
+Chart path: /tmp/builds/epay/devops/deployment/dev/charts/epay_common
+Executing: helm upgrade --install "epay-common" /tmp/builds/epay/devops/deployment/dev/charts/epay_common   --namespace dev-epay-common   --history-max 10   --timeout 15m   -f /tmp/builds/epay/devops/deployment/dev/charts/epay_common/values.yaml   --reset-values
+Error: UPGRADE FAILED: Unable to continue with update: Secret "dev-console-console-secret" in namespace "dev-kafka" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: key "app.kubernetes.io/managed-by" must equal "Helm": current value is "streamshub-console-operator"; annotation validation error: missing key "meta.helm.sh/release-name": must be set to "epay-common"; annotation validation error: missing key "meta.helm.sh/release-namespace": must be set to "dev-epay-common"
+Error: Helm deployment failed
+Last 5 revisions:
+Error: release name is invalid: "epay-common"
+Cleaning up project directory and file based variables
+00:02
+ERROR: Job failed: exit code 1
+
 console.yaml
 
 claude
