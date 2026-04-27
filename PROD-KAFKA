@@ -1,0 +1,239 @@
+prod-dc-kafka (Active)
+
+
+
+[osuser@dcepayprodbastion ~]$ sh kafka-health.sh
+=====================================
+      PROD DC KAFKA HEALTH CHECK
+=====================================
+Date: Mon Apr 27 10:14:15 AM IST 2026
+
+Switching to namespace: prod-dc-kafka
+
+========== POD STATUS ==========
+NAME                                                     READY   STATUS    RESTARTS   AGE
+prod-dc-kafka-cluster-broker-0                           1/1     Running   0          88d
+prod-dc-kafka-cluster-broker-1                           1/1     Running   0          88d
+prod-dc-kafka-cluster-broker-2                           1/1     Running   0          88d
+prod-dc-kafka-cluster-controller-3                       1/1     Running   0          88d
+prod-dc-kafka-cluster-controller-4                       1/1     Running   0          88d
+prod-dc-kafka-cluster-controller-5                       1/1     Running   0          88d
+prod-dc-kafka-cluster-cruise-control-56d7c74b45-jds44    1/1     Running   0          88d
+prod-dc-kafka-cluster-entity-operator-644b678669-pz2j7   2/2     Running   0          88d
+
+========== BROKER STATUS ==========
+prod-dc-kafka-cluster-broker-0                           1/1     Running   0          88d
+prod-dc-kafka-cluster-broker-1                           1/1     Running   0          88d
+prod-dc-kafka-cluster-broker-2                           1/1     Running   0          88d
+
+========== CONTROLLER STATUS ==========
+prod-dc-kafka-cluster-controller-3                       1/1     Running   0          88d
+prod-dc-kafka-cluster-controller-4                       1/1     Running   0          88d
+prod-dc-kafka-cluster-controller-5                       1/1     Running   0          88d
+
+========== CRUISE CONTROL ==========
+prod-dc-kafka-cluster-cruise-control-56d7c74b45-jds44    1/1     Running   0          88d
+
+========== ENTITY OPERATOR ==========
+prod-dc-kafka-cluster-entity-operator-644b678669-pz2j7   2/2     Running   0          88d
+
+========== MIRRORMAKER2 STATUS ==========
+
+========== TOPIC COUNT ==========
+Total Topics: 28
+
+========== TOPIC HEALTH ==========
+Under Replicated Partitions: 0
+
+========== CONSUMER GROUP SUMMARY ==========
+Total Consumer Groups: 4
+
+========== KAFKA STORAGE USAGE ==========
+239M    /var/lib/kafka/data-0
+171M    /var/lib/kafka/data-1
+
+========== NETWORK TRAFFIC ==========
+Receive Traffic : 7 KB/s
+Transmit Traffic: 2 KB/s
+
+=====================================
+           KAFKA SUMMARY
+=====================================
+Cluster Health : Healthy
+Brokers        : 3
+Topics         : 28
+ConsumerGroups : 4
+Network RX     : 7 KB/s
+Network TX     : 2 KB/s
+
+=====================================
+      END OF HEALTH CHECK
+====================================
+[osuser@dcepayprodbastion ~]$
+sh-5.1$ cd bin
+sh-5.1$ ./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups
+
+
+GROUP                  TOPIC                                PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                           HOST            CLIENT-ID
+console-consumer-21717 transaction_email_notification_topic 0          -               0               -               console-consumer-8b496751-7252-4452-8051-d95fd49bfa36 /172.16.30.7    console-consumer
+console-consumer-21717 transaction_email_notification_topic 2          -               0               -               console-consumer-8b496751-7252-4452-8051-d95fd49bfa36 /172.16.30.7    console-consumer
+console-consumer-21717 transaction_email_notification_topic 1          -               0               -               console-consumer-8b496751-7252-4452-8051-d95fd49bfa36 /172.16.30.7    console-consumer
+console-consumer-21717 transaction_email_notification_topic 3          -               0               -               console-consumer-8b496751-7252-4452-8051-d95fd49bfa36 /172.16.30.7    console-consumer
+GROUP              TOPIC                             PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                        HOST            CLIENT-ID
+merchant-consumers merchant_report_topic             3          1302            1302            0               consumer-merchant-consumers-3-56b18656-5772-4f7e-bf1b-690c7f813a41 /172.16.39.42   consumer-merchant-consumers-3
+merchant-consumers merchant_report_topic             1          1373            1373            0               consumer-merchant-consumers-3-56b18656-5772-4f7e-bf1b-690c7f813a41 /172.16.39.42   consumer-merchant-consumers-3
+merchant-consumers merchant_report_topic             2          1433            1433            0               consumer-merchant-consumers-3-56b18656-5772-4f7e-bf1b-690c7f813a41 /172.16.39.42   consumer-merchant-consumers-3
+merchant-consumers merchant_report_topic             0          1346            1346            0               consumer-merchant-consumers-3-56b18656-5772-4f7e-bf1b-690c7f813a41 /172.16.39.42   consumer-merchant-consumers-3
+merchant-consumers merchant_email_notification_topic 2          148             148             0               consumer-merchant-consumers-2-5cbfd559-8333-47e9-a797-e7444c6bfc13 /172.16.40.94   consumer-merchant-consumers-2
+merchant-consumers merchant_email_notification_topic 1          273             273             0               consumer-merchant-consumers-2-5cbfd559-8333-47e9-a797-e7444c6bfc13 /172.16.40.94   consumer-merchant-consumers-2
+merchant-consumers merchant_email_notification_topic 0          74              74              0               consumer-merchant-consumers-2-5cbfd559-8333-47e9-a797-e7444c6bfc13 /172.16.40.94   consumer-merchant-consumers-2
+merchant-consumers merchant_email_notification_topic 3          134             134             0               consumer-merchant-consumers-2-5cbfd559-8333-47e9-a797-e7444c6bfc13 /172.16.40.94   consumer-merchant-consumers-2
+merchant-consumers merchant_sms_notification_topic   1          189             189             0               consumer-merchant-consumers-1-6c4d2853-86b3-46ea-8418-09aca0c3f169 /172.16.40.94   consumer-merchant-consumers-1
+merchant-consumers merchant_sms_notification_topic   0          258             258             0               consumer-merchant-consumers-1-6c4d2853-86b3-46ea-8418-09aca0c3f169 /172.16.40.94   consumer-merchant-consumers-1
+merchant-consumers merchant_sms_notification_topic   3          59              59              0               consumer-merchant-consumers-1-6c4d2853-86b3-46ea-8418-09aca0c3f169 /172.16.40.94   consumer-merchant-consumers-1
+merchant-consumers merchant_sms_notification_topic   2          39              39              0               consumer-merchant-consumers-1-6c4d2853-86b3-46ea-8418-09aca0c3f169 /172.16.40.94   consumer-merchant-consumers-1
+merchant-consumers report_sms_notification_topic     0          948             948             0               consumer-merchant-consumers-1-d52cff98-1080-4858-af82-d9e2b0f7bb79 /172.16.39.42   consumer-merchant-consumers-1
+merchant-consumers merchant_report_alert_topic       0          4541            4541            0               consumer-merchant-consumers-3-18241281-c276-40f2-8043-2114efa27729 /172.16.40.94   consumer-merchant-consumers-3
+merchant-consumers ops_report_generation_topic       0          700             700             0               consumer-merchant-consumers-2-55fb7d8f-b3a6-47e5-81db-7af751073dd6 /172.16.39.42   consumer-merchant-consumers-2
+GROUP               TOPIC                                PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                         HOST            CLIENT-ID
+operation-consumers ops_recon_file_topic                 0          96              96              0               consumer-operation-consumers-5-3574663b-d03a-45a2-9765-5897149c0f16 /172.16.36.101  consumer-operation-consumers-5
+operation-consumers ops_recon_file_topic                 1          82              82              0               consumer-operation-consumers-5-3574663b-d03a-45a2-9765-5897149c0f16 /172.16.36.101  consumer-operation-consumers-5
+operation-consumers ops_recon_fail_ack_topic             3          1566            1566            0               consumer-operation-consumers-1-368decdb-baa5-4bb1-ad66-990680f8fa5c /172.16.38.94   consumer-operation-consumers-1
+operation-consumers ops_recon_fail_ack_topic             2          1558            1558            0               consumer-operation-consumers-1-368decdb-baa5-4bb1-ad66-990680f8fa5c /172.16.38.94   consumer-operation-consumers-1
+operation-consumers ops_recon_fail_ack_topic             1          1449            1449            0               consumer-operation-consumers-1-07787b6e-0228-4704-9eeb-55e5eda4395d /172.16.36.101  consumer-operation-consumers-1
+operation-consumers ops_recon_fail_ack_topic             0          1562            1562            0               consumer-operation-consumers-1-07787b6e-0228-4704-9eeb-55e5eda4395d /172.16.36.101  consumer-operation-consumers-1
+operation-consumers ops_refund_adjust_confirmation_topic 0          17              17              0               consumer-operation-consumers-2-44c88b83-f66c-425b-83f6-bddc10f43cb3 /172.16.36.101  consumer-operation-consumers-2
+operation-consumers ops_refund_adjust_confirmation_topic 1          18              18              0               consumer-operation-consumers-2-44c88b83-f66c-425b-83f6-bddc10f43cb3 /172.16.36.101  consumer-operation-consumers-2
+operation-consumers ops_recon_file_topic                 3          99              99              0               consumer-operation-consumers-5-fbbe0b54-a127-4e62-87af-e0a29b44fecc /172.16.38.94   consumer-operation-consumers-5
+operation-consumers ops_recon_file_topic                 2          71              71              0               consumer-operation-consumers-5-fbbe0b54-a127-4e62-87af-e0a29b44fecc /172.16.38.94   consumer-operation-consumers-5
+operation-consumers ops_refund_adjust_confirmation_topic 2          12              12              0               consumer-operation-consumers-2-b27f1e6a-3164-4ead-97db-0374d568f143 /172.16.38.94   consumer-operation-consumers-2
+operation-consumers ops_refund_adjust_confirmation_topic 3          12              12              0               consumer-operation-consumers-2-b27f1e6a-3164-4ead-97db-0374d568f143 /172.16.38.94   consumer-operation-consumers-2
+operation-consumers ops_payout_topic                     0          342             342             0               consumer-operation-consumers-4-2fc6426e-5367-4858-a886-60d4416e0eeb /172.16.36.101  consumer-operation-consumers-4
+operation-consumers ops_report_confirmation_topic        0          322             322             0               consumer-operation-consumers-3-2ec8cd32-a387-4d7c-9023-7c8cfd976684 /172.16.38.94   consumer-operation-consumers-3
+GROUP                 TOPIC                                PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                           HOST            CLIENT-ID
+transaction-consumers transaction_email_notification_topic 1          0               0               0               consumer-transaction-consumers-9-2d9243e4-d92c-41ad-9489-69760e4f4486 /172.16.26.97   consumer-transaction-consumers-9
+transaction-consumers transaction_sms_notification_topic   3          0               0               0               consumer-transaction-consumers-3-9925a296-d355-42e9-b6cf-e554d710d54d /172.16.26.97   consumer-transaction-consumers-3
+transaction-consumers transaction_push_verification_topic  3          24188872        24188872        0               consumer-transaction-consumers-4-ad897986-7962-4cfd-9325-d2591254d25c /172.16.38.95   consumer-transaction-consumers-4
+transaction-consumers transaction_push_verification_topic  0          24956395        24956395        0               consumer-transaction-consumers-4-10747ec3-8da9-4313-9a95-f6c895dafcbe /172.16.28.107  consumer-transaction-consumers-4
+transaction-consumers transaction_email_notification_topic 3          0               0               0               consumer-transaction-consumers-9-e93729d4-58d0-4a1b-b901-7fe7fd857615 /172.16.28.107  consumer-transaction-consumers-9
+transaction-consumers process_bookingDetails_topic         0          50              50              0               consumer-transaction-consumers-2-4b614008-ef76-4973-8e05-2a5c281478b9 /172.16.38.95   consumer-transaction-consumers-2
+transaction-consumers process_bulk_refund_topic            1          5               5               0               consumer-transaction-consumers-8-64a0481f-effc-4bc3-bff8-658f4c2be302 /172.16.36.107  consumer-transaction-consumers-8
+transaction-consumers transaction_email_notification_topic 2          0               0               0               consumer-transaction-consumers-9-a4301a42-fae9-4404-938f-8af1a5b40faf /172.16.36.107  consumer-transaction-consumers-9
+transaction-consumers process_bulk_refund_topic            3          4               4               0               consumer-transaction-consumers-8-a642f992-1021-46bf-84cf-4396f84c7004 /172.16.26.97   consumer-transaction-consumers-8
+transaction-consumers ops_refund_adjust_detail_topic       0          60              60              0               consumer-transaction-consumers-1-16c47ce3-3190-4136-8a96-1c2a1a621841 /172.16.38.95   consumer-transaction-consumers-1
+transaction-consumers process_bulk_refund_topic            2          5               5               0               consumer-transaction-consumers-8-7031ea17-d401-4cbc-8e59-022f77925383 /172.16.38.95   consumer-transaction-consumers-8
+transaction-consumers process_bulk_refund_topic            0          2               2               0               consumer-transaction-consumers-8-12a188d1-360e-4361-b6fe-d22686b7fb0c /172.16.28.107  consumer-transaction-consumers-8
+transaction-consumers transaction_sms_notification_topic   1          0               0               0               consumer-transaction-consumers-3-78839c41-4ce4-4229-82fd-f56511dfef8a /172.16.28.107  consumer-transaction-consumers-3
+transaction-consumers ops_recon_record_matched_topic       0          579981          579981          0               consumer-transaction-consumers-6-01057e55-46f6-42dc-8b62-cfcab37a39a3 /172.16.36.107  consumer-transaction-consumers-6
+transaction-consumers transaction_push_verification_topic  1          24862405        24862405        0               consumer-transaction-consumers-4-2ce437e5-e188-489a-a583-6d5bc4114c81 /172.16.26.97   consumer-transaction-consumers-4
+transaction-consumers transaction_email_notification_topic 0          0               0               0               consumer-transaction-consumers-9-07dd99f0-60c3-49a7-a843-5e00ae6e6afa /172.16.38.95   consumer-transaction-consumers-9
+transaction-consumers transaction_push_verification_topic  2          25251997        25251997        0               consumer-transaction-consumers-4-5d822fd1-e22d-4387-9016-c5619e5f855f /172.16.36.107  consumer-transaction-consumers-4
+transaction-consumers transaction_sms_notification_topic   0          0               0               0               consumer-transaction-consumers-3-1d89dc85-6890-4916-8077-da8f4eb768ed /172.16.36.107  consumer-transaction-consumers-3
+transaction-consumers transaction_sms_notification_topic   2          0               0               0               consumer-transaction-consumers-3-8fdcc218-cea1-4384-ae75-99723ca42b4e /172.16.38.95   consumer-transaction-consumers-3
+transaction-consumers ops_recon_record_unmatched_topic     0          199             199             0               consumer-transaction-consumers-7-0fe144f8-68b1-4047-8617-975e40648a7a /172.16.38.95   consumer-transaction-consumers-7
+transaction-consumers ops_recon_record_duplicate_topic     0          9               9               0               consumer-transaction-consumers-5-0c578d27-6eb5-47dd-b337-4b1b72b76df2 /172.16.26.97   consumer-transaction-consumers-5sh-5.1$
+sh-5.1$
+
+
+
+
+
+
+--------------------------prod-dr-kafka(Passive)_--------------------------------------
+
+
+[osuser@drepayprodbastion ~]$ sh kafka-health.sh
+=====================================
+      PROD DR KAFKA HEALTH CHECK
+=====================================
+Date: Mon Apr 27 10:15:36 AM IST 2026
+
+Switching to namespace: prod-dr-kafka
+
+========== POD STATUS ==========
+NAME                                                     READY   STATUS    RESTARTS   AGE
+prod-dr-kafka-cluster-broker-0                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-1                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-2                           1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-3                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-4                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-5                       1/1     Running   0          78d
+prod-dr-kafka-cluster-cruise-control-7bc69c47c-c5nlh     1/1     Running   0          78d
+prod-dr-kafka-cluster-entity-operator-5b66d657d6-6r7wf   2/2     Running   0          78d
+prod-dr-kafka-mirror-maker-mirrormaker2-0                1/1     Running   0          78d
+
+========== BROKER STATUS ==========
+prod-dr-kafka-cluster-broker-0                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-1                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-2                           1/1     Running   0          78d
+
+========== CONTROLLER STATUS ==========
+prod-dr-kafka-cluster-controller-3                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-4                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-5                       1/1     Running   0          78d
+
+========== CRUISE CONTROL ==========
+prod-dr-kafka-cluster-cruise-control-7bc69c47c-c5nlh     1/1     Running   0          78d
+
+========== ENTITY OPERATOR ==========
+prod-dr-kafka-cluster-entity-operator-5b66d657d6-6r7wf   2/2     Running   0          78d
+
+========== MIRRORMAKER2 STATUS ==========
+prod-dr-kafka-mirror-maker-mirrormaker2-0                1/1     Running   0          78d
+
+========== TOPIC COUNT ==========
+Defaulted container "kafka" out of: kafka, dynatrace-operator (init)
+Total Topics: 28
+
+========== TOPIC HEALTH ==========
+Defaulted container "kafka" out of: kafka, dynatrace-operator (init)
+Under Replicated Partitions: 0
+
+========== CONSUMER GROUP SUMMARY ==========
+Defaulted container "kafka" out of: kafka, dynatrace-operator (init)
+Total Consumer Groups: 1
+
+========== KAFKA STORAGE USAGE ==========
+Defaulted container "kafka" out of: kafka, dynatrace-operator (init)
+144M    /var/lib/kafka/data-0
+2.4M    /var/lib/kafka/data-1
+
+========== NETWORK TRAFFIC ==========
+Receive Traffic : 5 KB/s
+Transmit Traffic: 2 KB/s
+
+=====================================
+           KAFKA SUMMARY
+=====================================
+Cluster Health : Healthy
+Brokers        : 3
+Topics         : 28
+ConsumerGroups : 1
+Network RX     : 5 KB/s
+Network TX     : 2 KB/s
+
+=====================================
+      END OF HEALTH CHECK
+=====================================
+[osuser@drepayprodbastion ~]$
+[osuser@drepayprodbastion ~]$ oc get pods
+NAME                                                     READY   STATUS    RESTARTS   AGE
+prod-dr-kafka-cluster-broker-0                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-1                           1/1     Running   0          78d
+prod-dr-kafka-cluster-broker-2                           1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-3                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-4                       1/1     Running   0          78d
+prod-dr-kafka-cluster-controller-5                       1/1     Running   0          78d
+prod-dr-kafka-cluster-cruise-control-7bc69c47c-c5nlh     1/1     Running   0          78d
+prod-dr-kafka-cluster-entity-operator-5b66d657d6-6r7wf   2/2     Running   0          78d
+prod-dr-kafka-mirror-maker-mirrormaker2-0                1/1     Running   0          78d
+[osuser@drepayprodbastion ~]$ oc rsh prod-dr-kafka-cluster-broker-0
+Defaulted container "kafka" out of: kafka, dynatrace-operator (init)
+sh-5.1$ cd bin
+sh-5.1$ ./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups
+
+GROUP                  TOPIC                                PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                           HOST            CLIENT-ID
+console-consumer-92312 transaction_email_notification_topic 0          -               0               -               console-consumer-77a1a2ae-6e96-4efc-acfe-f9ff7a7fd683 /172.16.42.3    console-consumer
+console-consumer-92312 transaction_email_notification_topic 2          -               0               -               console-consumer-77a1a2ae-6e96-4efc-acfe-f9ff7a7fd683 /172.16.42.3    console-consumer
+console-consumer-92312 transaction_email_notification_topic 1          -               0               -               console-consumer-77a1a2ae-6e96-4efc-acfe-f9ff7a7fd683 /172.16.42.3    console-consumer
+console-consumer-92312 transaction_email_notification_topic 3          -               0               -               console-consumer-77a1a2ae-6e96-4efc-acfe-f9ff7a7fd683 /172.16.42.3    console-consumersh-5.1$
