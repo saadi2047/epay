@@ -1,27 +1,19 @@
-The pipeline hasn't run yet or the Console operator is not picking up the CR change. The secret still has the old URL. 
-
-The fastest fix right now is directly through GitLab — **update the secret via pipeline**. But we need to understand how your Console CR gets converted to the secret.
-
-Run these quickly on bastion:
-
-```bash
-# Check if there is a Console operator managing this
-oc get console -n dev-kafka
-oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|prometheus\|url"
-```
-
-This tells us whether the **Console operator** is managing the secret (and will auto-update it when CR changes) or whether the secret was created manually and is independent of the CR.
-
-Also check if your pipeline already ran after your Git change:
-
-```bash
-# Check when the secret was last updated
-oc get secret dev-console-console-secret -n dev-kafka \
-  -o jsonpath='{.metadata.resourceVersion}' 
-
-# Check current URL in secret right now
-oc get secret dev-console-console-secret -n dev-kafka \
-  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-```
-
-Share this output — if the secret still shows the old URL it means either the pipeline hasn't run yet or the Console operator is not updating the secret from the CR, in which case we need to update the secret directly through GitLab CI as a `helm upgrade` step or a separate `oc patch` step in the pipeline.
+[osuser@bastion ~]$ oc get console -n dev-kafka
+NAME      AGE
+cluster   597d
+[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|promotheus\|url"
+Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
+[osuser@bastion ~]$ oc get console cluster  -n dev-kafka -o yaml | grep -A 5 "metricsSource\|promotheus\|url"
+[osuser@bastion ~]$ oc get console -n dev-kafka
+NAME      AGE
+cluster   597d
+[osuser@bastion ~]$ oc get console dev-console -n dev-kafka -o yaml | grep -A 5 "metricsSource\|prometheus\|url"
+Error from server (NotFound): consoles.config.openshift.io "dev-console" not found
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+>   -o jsonpath='{.metadata.resourceVersion}'
+721983716[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+>   -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$
