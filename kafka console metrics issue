@@ -1,170 +1,27 @@
-[osuser@bastion ~]$ oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A 3 "name: tcp"
-      name: tcp-kafkaagent
-      protocol: TCP
-    - containerPort: 9091
-      name: tcp-replication
-      protocol: TCP
-    - containerPort: 9092
-      name: tcp-clients
-      protocol: TCP
-    - containerPort: 9093
-      name: tcp-clientstls
-      protocol: TCP
-    - containerPort: 9094
-      name: tcp-external
-      protocol: TCP
-    - containerPort: 9404
-      name: tcp-prometheus
-      protocol: TCP
-    readinessProbe:
-      exec:
-[osuser@bastion ~]$ oc get deployment dev-console-console-deployment -n dev-kafka -o yaml | grep -A 5 "volume\|mount\|secret\|configmap"
-        volumeMounts:
-        - mountPath: /deployments/config
-          name: config
-        - mountPath: /tmp
-          name: work
-      - env:
-        - name: NEXTAUTH_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: NEXTAUTH_SECRET
-              name: dev-console-console-secret
-        - name: NEXTAUTH_URL
-          value: https://dev-kafkaconsole.apps.dev.sbiepay.sbi
-        - name: BACKEND_URL
-          value: http://127.0.0.1:8080
-        - name: CONSOLE_CONFIG_PATH
---
-        volumeMounts:
-        - mountPath: /deployments/config
-          name: config
-        - mountPath: /app/.next/cache
-          name: work
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
---
-      volumes:
-      - emptyDir: {}
-        name: work
-      - name: config
-        secret:
-          defaultMode: 420
-          secretName: dev-console-console-secret
-status:
-  availableReplicas: 1
-  conditions:
-  - lastTransitionTime: "2026-04-21T11:10:40Z"
-    lastUpdateTime: "2026-04-24T11:28:11Z"
-[osuser@bastion ~]$ oc get secret -n dev-kafka | grep console
-dev-console-console-secret                            Opaque                                2      5d19h
-dev-console-console-serviceaccount-dockercfg-lzzvg    kubernetes.io/dockercfg               1      5d19h
-[osuser@bastion ~]$ oc get configmap cluster-monitoring-config -n openshift-monitoring -o yaml
-apiVersion: v1
-data:
-  config.yaml: |
-    enableUserWorkload: true
-kind: ConfigMap
-metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"v1","data":{"config.yaml":"enableUserWorkload: true\n"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"cluster-monitoring-config","namespace":"openshift-monitoring"}}
-  creationTimestamp: "2025-05-23T06:21:28Z"
-  name: cluster-monitoring-config
-  namespace: openshift-monitoring
-  resourceVersion: "701729717"
-  uid: 3ea036ec-2d7f-4a01-aff9-d56862203fd4
-[osuser@bastion ~]$ oc get namespace dev-kafka -o yaml | grep -i "label\|monitor"
-  labels:
-[osuser@bastion ~]$ oc get prometheus user-workload -n openshift-user-workload-monitoring -o yaml | grep -A 10 "namespaceSelector\|serviceMonitor\|podMonitor"
-  podMonitorNamespaceSelector:
-    matchExpressions:
-    - key: openshift.io/cluster-monitoring
-      operator: NotIn
-      values:
-      - "true"
-    - key: openshift.io/user-monitoring
-      operator: NotIn
-      values:
-      - "false"
-  podMonitorSelector:
-    matchExpressions:
-    - key: openshift.io/user-monitoring
-      operator: NotIn
-      values:
-      - "false"
-  portName: web
-  priorityClassName: openshift-user-critical
-  probeNamespaceSelector:
-    matchExpressions:
-    - key: openshift.io/cluster-monitoring
---
-  serviceMonitorNamespaceSelector:
-    matchExpressions:
-    - key: openshift.io/cluster-monitoring
-      operator: NotIn
-      values:
-      - "true"
-    - key: openshift.io/user-monitoring
-      operator: NotIn
-      values:
-      - "false"
-  serviceMonitorSelector:
-    matchExpressions:
-    - key: openshift.io/user-monitoring
-      operator: NotIn
-      values:
-      - "false"
-  thanos:
-    blockSize: 2h
-    image: quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:b1d26a296f7030737a14e198a7c83a7d8720dad1d2b2ffaeaf7cbdbde274da78
-    resources:
-      requests:
-[osuser@bastion ~]$ oc describe deployment dev-console-console-deployment -n dev-kafka | grep -A 20 "Volumes:\|Mounts:"
-    Mounts:
-      /deployments/config from config (rw)
-      /tmp from work (rw)
-   console-ui:
-    Image:           registry.redhat.io/amq-streams/console-ui-rhel9@sha256:b0f8e0b895e1a4667da521ddacfc476c7fa2b9b0983044bd139978181499c774
-    Port:            3000/TCP
-    Host Port:       0/TCP
-    SeccompProfile:  RuntimeDefault
-    Liveness:        http-get http://:http/healthz delay=5s timeout=10s period=10s #success=1 #failure=3
-    Readiness:       http-get http://:http/healthz delay=5s timeout=10s period=10s #success=1 #failure=3
-    Startup:         http-get http://:http/healthz delay=5s timeout=10s period=10s #success=1 #failure=3
-    Environment:
-      NEXTAUTH_SECRET:      <set to the key 'NEXTAUTH_SECRET' in secret 'dev-console-console-secret'>  Optional: false
-      NEXTAUTH_URL:         https://dev-kafkaconsole.apps.dev.sbiepay.sbi
-      BACKEND_URL:          http://127.0.0.1:8080
-      CONSOLE_CONFIG_PATH:  /deployments/config/console-config.yaml
-      CONSOLE_MODE:         read-only
-      LOG_LEVEL:            info
-    Mounts:
-      /app/.next/cache from work (rw)
-      /deployments/config from config (rw)
-  Volumes:
-   work:
-    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
-    Medium:
-    SizeLimit:  <unset>
-   config:
-    Type:        Secret (a volume populated by a Secret)
-    SecretName:  dev-console-console-secret
-    Optional:    false
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Progressing    True    NewReplicaSetAvailable
-  Available      True    MinimumReplicasAvailable
-OldReplicaSets:  dev-console-console-deployment-85fbbdfcff (0/0 replicas created), dev-console-console-deployment-664d4df596 (0/0 replicas created)
-NewReplicaSet:   dev-console-console-deployment-77c9c88945 (1/1 replicas created)
-Events:          <none>
-[osuser@bastion ~]$ oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A 3 "ports:" | head -40
-    ports:
-    - containerPort: 8443
-      name: tcp-kafkaagent
-      protocol: TCP
-[osuser@bastion ~]$ oc describe deployment/dev-console-console-deployment | grep -i "prometheus\|metric"
-[osuser@bastion ~]$
+oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
+  -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
+
+# Verify
+oc get podmonitor kafka-resources-metrics -n dev-kafka -o jsonpath='{.spec.namespaceSelector}'
+
+
+
+# Add label so user-workload Prometheus scrapes this namespace
+oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
+
+# Verify
+oc get namespace dev-kafka --show-labels
+
+
+
+
+
+
+
+# Check all 4 environments namespace selector
+for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
+  echo "=== $ns ==="
+  oc get podmonitor kafka-resources-metrics -n $ns \
+    -o jsonpath='{.spec.namespaceSelector}' 2>/dev/null || echo "NOT FOUND"
+  echo ""
+done
