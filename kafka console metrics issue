@@ -9,3 +9,25 @@ oc get secret dev-console-console-secret -n dev-kafka \
 
 
 oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
+
+
+
+Deploying "epay-common" to dev-epay-common...
+Chart path: /tmp/builds/epay/devops/deployment/dev/charts/epay_common
+Executing: helm upgrade --install "epay-common" /tmp/builds/epay/devops/deployment/dev/charts/epay_common   --namespace dev-epay-common   --history-max 10   --timeout 15m   -f /tmp/builds/epay/devops/deployment/dev/charts/epay_common/values.yaml   --reset-values
+Error: UPGRADE FAILED: cannot patch "dev-console" with kind Console: Console.console.streamshub.github.com "dev-console" is invalid: [spec.metricsSources[0].type: Unsupported value: "prometheus": supported values: "embedded", "openshift-monitoring", "standalone", <nil>: Invalid value: "null": some validation rules were not checked because the object was invalid; correct the existing errors to complete validation]
+Error: Helm deployment failed
+Last 5 revisions:
+Error: release name is invalid: "epay-common"
+Cleaning up project directory and file based variables
+00:02
+ERROR: Job failed: exit code 1
+
+
+
+
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
+Defaulted container "console-api" out of: console-api, console-ui
+2026-04-27 10:50:05,256 INFO  [io.qua.htt.access-log] (executor-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 16ms 395
+2026-04-27 10:51:06,232 INFO  [io.qua.htt.access-log] (executor-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
+[osuser@bastion ~]$
