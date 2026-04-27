@@ -1,46 +1,843 @@
-apiVersion: console.streamshub.github.com/v1alpha1
-kind: Console
+
+
+Streams for Apache Kafka Console
+3.0.1-3 provided by Red Hat
+
+
+
+
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
 metadata:
-  name: dev-console
+  annotations:
+    olm.skipRange: '>=2.9.0-0 <3.0.1-3'
+    features.operators.openshift.io/token-auth-azure: 'false'
+    operators.openshift.io/valid-subscription: '["Red Hat AMQ", "Red Hat Application Foundations"]'
+    features.operators.openshift.io/token-auth-gcp: 'false'
+    certified: 'false'
+    operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"console.streamshub.github.com","kind":"Console","version":"v1alpha1"}},{"type":"olm.package","value":{"packageName":"amq-streams-console","version":"3.0.1-3"}}]}'
+    alm-examples-metadata: |-
+      {
+        "example-console": {
+          "description": "Example Console instance with reference to on-cluster Strimzi Kafka resource"
+        }
+      }
+    repository: 'https://github.com/streamshub/console'
+    features.operators.openshift.io/token-auth-aws: 'false'
+    support: Red Hat
+    alm-examples: |-
+      [
+        {
+          "apiVersion":"console.streamshub.github.com/v1alpha1",
+          "kind":"Console",
+          "metadata":{
+            "name":"example-console"
+          },
+          "spec":{
+            "hostname": "<console-hostname-for-ingress>",
+            "kafkaClusters": [
+              {
+                "name": "<strimzi-kafka-resource-name>",
+                "namespace": "<strimzi-kafka-resource-namespace>",
+                "listener": "<strimzi-kafka-listener-name>",
+                "credentials": {
+                  "kafkaUser": {
+                    "name": "<strimzi-kafka-user-name-for-connection>"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    capabilities: Basic Install
+    features.operators.openshift.io/csi: 'false'
+    features.operators.openshift.io/fips-compliant: 'true'
+    features.operators.openshift.io/cnf: 'false'
+    olm.operatorNamespace: streams-kafka-console
+    containerImage: 'registry.redhat.io/amq-streams/console-rhel9-operator@sha256:622cdec705ee48b0d2c3faa251dff65e0dcde3c2557fbf8408b1dc69ed1cc90c'
+    createdAt: '2025-09-24T12:01:17Z'
+    features.operators.openshift.io/cni: 'false'
+    categories: Streaming & Messaging
+    features.operators.openshift.io/proxy-aware: 'false'
+    olm.operatorGroup: streams-kafka-console-chshs
+    features.operators.openshift.io/disconnected: 'true'
+    features.operators.openshift.io/tls-profiles: 'false'
+  resourceVersion: '714835097'
+  name: amq-streams-console.v3.0.1-3
+  uid: 82ce93d5-3721-45ed-80b6-59c416f50d32
+  creationTimestamp: '2025-12-20T06:44:02Z'
+  generation: 1
+  managedFields:
+    - apiVersion: operators.coreos.com/v1alpha1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:features.operators.openshift.io/csi': {}
+            'f:features.operators.openshift.io/token-auth-aws': {}
+            'f:features.operators.openshift.io/cnf': {}
+            'f:olm.operatorNamespace': {}
+            'f:features.operators.openshift.io/cni': {}
+            'f:createdAt': {}
+            'f:features.operators.openshift.io/proxy-aware': {}
+            'f:alm-examples': {}
+            'f:olm.operatorGroup': {}
+            'f:capabilities': {}
+            'f:features.operators.openshift.io/fips-compliant': {}
+            'f:olm.skipRange': {}
+            .: {}
+            'f:operators.openshift.io/valid-subscription': {}
+            'f:containerImage': {}
+            'f:categories': {}
+            'f:features.operators.openshift.io/disconnected': {}
+            'f:features.operators.openshift.io/tls-profiles': {}
+            'f:certified': {}
+            'f:alm-examples-metadata': {}
+            'f:operatorframework.io/properties': {}
+            'f:features.operators.openshift.io/token-auth-azure': {}
+            'f:features.operators.openshift.io/token-auth-gcp': {}
+            'f:support': {}
+            'f:repository': {}
+          'f:labels':
+            .: {}
+            'f:olm.copiedFrom': {}
+            'f:olm.managed': {}
+            'f:operatorframework.io/arch.amd64': {}
+            'f:operatorframework.io/arch.arm64': {}
+            'f:operatorframework.io/arch.ppc64le': {}
+            'f:operatorframework.io/arch.s390x': {}
+            'f:operatorframework.io/os.linux': {}
+        'f:spec':
+          'f:version': {}
+          'f:nativeAPIs': {}
+          'f:maturity': {}
+          'f:provider':
+            .: {}
+            'f:name': {}
+            'f:url': {}
+          'f:links': {}
+          'f:install':
+            .: {}
+            'f:spec':
+              .: {}
+              'f:clusterPermissions': {}
+              'f:deployments': {}
+            'f:strategy': {}
+          'f:maintainers': {}
+          'f:description': {}
+          'f:installModes': {}
+          'f:minKubeVersion': {}
+          'f:icon': {}
+          'f:customresourcedefinitions':
+            .: {}
+            'f:owned': {}
+          .: {}
+          'f:relatedImages': {}
+          'f:cleanup':
+            .: {}
+            'f:enabled': {}
+          'f:apiservicedefinitions': {}
+          'f:replaces': {}
+          'f:displayName': {}
+          'f:keywords': {}
+      manager: olm
+      operation: Update
+      time: '2025-12-20T06:44:02Z'
+    - apiVersion: operators.coreos.com/v1alpha1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          'f:lastUpdateTime': {}
+          'f:requirementStatus': {}
+          'f:phase': {}
+          'f:lastTransitionTime': {}
+          'f:conditions': {}
+          .: {}
+          'f:cleanup': {}
+          'f:message': {}
+          'f:reason': {}
+      manager: olm
+      operation: Update
+      subresource: status
+      time: '2026-04-20T16:26:16Z'
   namespace: dev-kafka
-
+  labels:
+    olm.copiedFrom: streams-kafka-console
+    olm.managed: 'true'
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.arm64: supported
+    operatorframework.io/arch.ppc64le: supported
+    operatorframework.io/arch.s390x: supported
+    operatorframework.io/os.linux: supported
 spec:
-  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+  customresourcedefinitions:
+    owned:
+      - description: Represents a Console deployment
+        displayName: Console
+        kind: Console
+        name: consoles.console.streamshub.github.com
+        version: v1alpha1
+  relatedImages:
+    - image: 'registry.redhat.io/amq-streams/console-rhel9-operator@sha256:622cdec705ee48b0d2c3faa251dff65e0dcde3c2557fbf8408b1dc69ed1cc90c'
+      name: console-rhel9-operator-622cdec705ee48b0d2c3faa251dff65e0dcde3c2557fbf8408b1dc69ed1cc90c-annotation
+    - image: 'registry.redhat.io/amq-streams/console-rhel9-operator@sha256:622cdec705ee48b0d2c3faa251dff65e0dcde3c2557fbf8408b1dc69ed1cc90c'
+      name: streamshub-console-operator
+    - image: 'registry.redhat.io/amq-streams/console-ui-rhel9@sha256:b0f8e0b895e1a4667da521ddacfc476c7fa2b9b0983044bd139978181499c774'
+      name: console-ui-rhel9-b0f8e0b895e1a4667da521ddacfc476c7fa2b9b0983044bd139978181499c774-annotation
+    - image: 'registry.redhat.io/amq-streams/console-api-rhel9@sha256:7f3638288c8a354ba9feceeb14e990ed7a09e3ef245d6fd288cd0bd8ad6c2c75'
+      name: console-api-rhel9-7f3638288c8a354ba9feceeb14e990ed7a09e3ef245d6fd288cd0bd8ad6c2c75-annotation
+  cleanup:
+    enabled: false
+  apiservicedefinitions: {}
+  keywords:
+    - kafka
+    - messaging
+    - kafka-streams
+    - data-streaming
+    - data-streams
+    - streaming
+    - streams
+    - web
+    - console
+    - ui
+    - user interface
+  displayName: Streams for Apache Kafka Console
+  nativeAPIs:
+    - group: ''
+      kind: ConfigMap
+      version: v1
+    - group: ''
+      kind: Secret
+      version: v1
+    - group: ''
+      kind: Service
+      version: v1
+    - group: ''
+      kind: ServiceAccount
+      version: v1
+    - group: apps
+      kind: Deployment
+      version: v1
+    - group: networking.k8s.io
+      kind: Ingress
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      version: v1
+  provider:
+    name: Red Hat
+    url: 'https://github.com/streamshub'
+  maturity: alpha
+  installModes:
+    - supported: true
+      type: AllNamespaces
+    - supported: false
+      type: OwnNamespace
+    - supported: false
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+  version: 3.0.1-3
+  icon:
+    - base64data: PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDM4IDM4Ij48ZGVmcz48c3R5bGU+LmNscy0xLC5jbHMtMiwuY2xzLTMsLmNscy00e3N0cm9rZS13aWR0aDowcHg7fS5jbHMtMntmaWxsOiNlMGUwZTA7fS5jbHMtM3tmaWxsOiNmZmY7fS5jbHMtNHtmaWxsOiNlMDA7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJCb3VuZGluZ19zaGFwZSI+PHJlY3QgY2xhc3M9ImNscy0zIiB4PSIxIiB5PSIxIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHJ4PSI5IiByeT0iOSIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI4LDIuMjVjNC4yNywwLDcuNzUsMy40OCw3Ljc1LDcuNzV2MThjMCw0LjI3LTMuNDgsNy43NS03Ljc1LDcuNzVIMTBjLTQuMjcsMC03Ljc1LTMuNDgtNy43NS03Ljc1VjEwYzAtNC4yNywzLjQ4LTcuNzUsNy43NS03Ljc1aDE4TTI4LDFIMTBDNS4wMywxLDEsNS4wMywxLDEwdjE4YzAsNC45Nyw0LjAzLDksOSw5aDE4YzQuOTcsMCw5LTQuMDMsOS05VjEwYzAtNC45Ny00LjAzLTktOS05aDBaIi8+PC9nPjxnIGlkPSJJY29ucyI+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMTcsMTguNjJjLTEuNzIsMC0zLjEyLTEuNC0zLjEyLTMuMTJzMS40LTMuMTIsMy4xMi0zLjEyLDMuMTIsMS40LDMuMTIsMy4xMi0xLjQsMy4xMi0zLjEyLDMuMTJaTTE3LDEzLjYyYy0xLjAzLDAtMS44OC44NC0xLjg4LDEuODhzLjg0LDEuODgsMS44OCwxLjg4LDEuODgtLjg0LDEuODgtMS44OC0uODQtMS44OC0xLjg4LTEuODhaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjMsMTguNjJjLS4zNCwwLS42Mi0uMjgtLjYyLS42MnYtNWMwLS4zNS4yOC0uNjIuNjItLjYycy42Mi4yOC42Mi42MnY1YzAsLjM1LS4yOC42Mi0uNjIuNjJaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjEsMjUuNjJjLTEuNzIsMC0zLjEyLTEuNC0zLjEyLTMuMTJzMS40LTMuMTIsMy4xMi0zLjEyLDMuMTIsMS40LDMuMTIsMy4xMi0xLjQsMy4xMi0zLjEyLDMuMTJaTTIxLDIwLjYyYy0xLjAzLDAtMS44OC44NC0xLjg4LDEuODhzLjg0LDEuODgsMS44OCwxLjg4LDEuODgtLjg0LDEuODgtMS44OC0uODQtMS44OC0xLjg4LTEuODhaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTEuNDQsOS41NmMtLjA4LS4wOC0uMTgtLjEzLS4yOS0uMTUtLjAyLDAtLjA1LS4wMS0uMDctLjAxLS4xMS0uMDEtLjIyLS4wMS0uMzIuMDMsMCwwLDAsMCwwLDAtLjA3LjAzLS4xMy4wNy0uMTguMTIsMCwwLS4wMSwwLS4wMi4wMWwtMiwyYy0uMjQuMjQtLjI0LjY0LDAsLjg4LjEyLjEyLjI4LjE4LjQ0LjE4cy4zMi0uMDYuNDQtLjE4bC45My0uOTN2OC40OWMwLC4zNS4yOC42Mi42Mi42MnMuNjItLjI4LjYyLS42MnYtOC40OWwuOTMuOTNjLjI0LjI0LjY0LjI0Ljg4LDBzLjI0LS42NCwwLS44OGwtMi0yWiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI5LjQ0LDI1LjU2Yy0uMjQtLjI0LS42NC0uMjQtLjg4LDBsLS45My45M3YtOC40OWMwLS4zNS0uMjgtLjYyLS42Mi0uNjJzLS42Mi4yOC0uNjIuNjJ2OC40OWwtLjkzLS45M2MtLjI0LS4yNC0uNjQtLjI0LS44OCwwLS4yNC4yNC0uMjQuNjQsMCwuODhsMiwyYy4wNi4wNi4xMy4xMS4yMS4xNC4wOC4wMy4xNi4wNS4yNC4wNXMuMTYtLjAyLjI0LS4wNWMwLDAsMCwwLDAsMCwuMDctLjAzLjEzLS4wNy4xOC0uMTIsMCwwLC4wMSwwLC4wMi0uMDFsMi0yYy4yNC0uMjQuMjQtLjY0LDAtLjg4WiIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTE1LDI1LjYyYy0uMzUsMC0uNjItLjI4LS42Mi0uNjJ2LTVjMC0uMzUuMjgtLjYyLjYyLS42MnMuNjIuMjguNjIuNjJ2NWMwLC4zNS0uMjguNjItLjYyLjYyWiIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTI3LDE4LjYyYy0uMzQsMC0uNjItLjI4LS42Mi0uNjJ2LTVjMC0uMzUuMjgtLjYyLjYyLS42MnMuNjIuMjguNjIuNjJ2NWMwLC4zNS0uMjguNjItLjYyLjYyWiIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTExLDI1LjYyYy0uMzUsMC0uNjItLjI4LS42Mi0uNjJ2LTVjMC0uMzUuMjgtLjYyLjYyLS42MnMuNjIuMjguNjIuNjJ2NWMwLC4zNS0uMjguNjItLjYyLjYyWiIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTIwLjEyLDE1LjVjMC0xLjcyLTEuNC0zLjEyLTMuMTItMy4xMnMtMy4xMiwxLjQtMy4xMiwzLjEyLDEuNCwzLjEyLDMuMTIsMy4xMiwzLjEyLTEuNCwzLjEyLTMuMTJaTTE3LDE3LjM4Yy0xLjAzLDAtMS44OC0uODQtMS44OC0xLjg4cy44NC0xLjg4LDEuODgtMS44OCwxLjg4Ljg0LDEuODgsMS44OC0uODQsMS44OC0xLjg4LDEuODhaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjMsMTguNjJjLjM0LDAsLjYyLS4yOC42Mi0uNjJ2LTVjMC0uMzUtLjI4LS42Mi0uNjItLjYycy0uNjIuMjgtLjYyLjYydjVjMCwuMzUuMjguNjIuNjIuNjJaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjEsMTkuMzhjLTEuNzIsMC0zLjEyLDEuNC0zLjEyLDMuMTJzMS40LDMuMTIsMy4xMiwzLjEyLDMuMTItMS40LDMuMTItMy4xMi0xLjQtMy4xMi0zLjEyLTMuMTJaTTIxLDI0LjM4Yy0xLjAzLDAtMS44OC0uODQtMS44OC0xLjg4cy44NC0xLjg4LDEuODgtMS44OCwxLjg4Ljg0LDEuODgsMS44OC0uODQsMS44OC0xLjg4LDEuODhaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMTUsMTkuMzhjLS4zNSwwLS42Mi4yOC0uNjIuNjJ2NWMwLC4zNS4yOC42Mi42Mi42MnMuNjItLjI4LjYyLS42MnYtNWMwLS4zNS0uMjgtLjYyLS42Mi0uNjJaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjcsMTIuMzhjLS4zNCwwLS42Mi4yOC0uNjIuNjJ2NWMwLC4zNS4yOC42Mi42Mi42MnMuNjItLjI4LjYyLS42MnYtNWMwLS4zNS0uMjgtLjYyLS42Mi0uNjJaIi8+PHBhdGggY2xhc3M9ImNscy00IiBkPSJNMTEsMTkuMzhjLS4zNSwwLS42Mi4yOC0uNjIuNjJ2NWMwLC4zNS4yOC42Mi42Mi42MnMuNjItLjI4LjYyLS42MnYtNWMwLS4zNS0uMjgtLjYyLS42Mi0uNjJaIi8+PC9nPjwvc3ZnPg==
+      mediatype: image/svg+xml
+  minKubeVersion: 1.25.0
+  links:
+    - name: Product Page
+      url: 'https://access.redhat.com/products/red-hat-amq'
+    - name: Documentation
+      url: 'https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/3.0'
+  install:
+    spec:
+      clusterPermissions:
+        - rules:
+            - apiGroups:
+                - console.streamshub.github.com
+              resources:
+                - consoles
+                - consoles/status
+                - consoles/finalizers
+              verbs:
+                - get
+                - list
+                - watch
+                - patch
+                - update
+                - create
+                - delete
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - clusterrolebindings
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - serviceaccounts
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apps
+              resources:
+                - deployments
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - services
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - clusterroles
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - secrets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apiextensions.k8s.io
+              resources:
+                - customresourcedefinitions
+              verbs:
+                - get
+                - list
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+              verbs:
+                - create
+            - apiGroups:
+                - coordination.k8s.io
+              resourceNames:
+                - streamshub-console-operator-lease
+              resources:
+                - leases
+              verbs:
+                - get
+                - list
+                - watch
+                - delete
+                - patch
+                - update
+                - create
+            - apiGroups:
+                - route.openshift.io
+              resourceNames:
+                - thanos-querier
+              resources:
+                - routes
+              verbs:
+                - get
+            - apiGroups:
+                - ''
+              resources:
+                - nodes
+                - nodes/proxy
+                - services
+                - endpoints
+                - pods
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - extensions
+              resources:
+                - ingresses
+              verbs:
+                - get
+                - list
+                - watch
+            - nonResourceURLs:
+                - /metrics
+              verbs:
+                - get
+            - apiGroups:
+                - kafka.strimzi.io
+              resources:
+                - kafkas
+                - kafkanodepools
+                - kafkarebalances
+                - kafkatopics
+                - kafkausers
+              verbs:
+                - get
+                - watch
+                - list
+            - apiGroups:
+                - kafka.strimzi.io
+              resources:
+                - kafkas
+                - kafkarebalances
+              verbs:
+                - patch
+            - apiGroups:
+                - ''
+              resources:
+                - pods
+              verbs:
+                - get
+                - list
+            - apiGroups:
+                - ''
+              resources:
+                - namespaces
+              verbs:
+                - get
+            - apiGroups:
+                - monitoring.coreos.com
+              resourceNames:
+                - k8s
+              resources:
+                - prometheuses/api
+              verbs:
+                - get
+                - create
+                - update
+          serviceAccountName: streamshub-console-operator
+      deployments:
+        - name: amq-streams-console-operator-v3.0.1-3
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app.kubernetes.io/instance: amq-streams-console-operator-v3.0.1-3
+            strategy: {}
+            template:
+              metadata:
+                annotations:
+                  default-api-image: 'registry.redhat.io/amq-streams/console-api-rhel9@sha256:7f3638288c8a354ba9feceeb14e990ed7a09e3ef245d6fd288cd0bd8ad6c2c75'
+                  default-ui-image: 'registry.redhat.io/amq-streams/console-ui-rhel9@sha256:b0f8e0b895e1a4667da521ddacfc476c7fa2b9b0983044bd139978181499c774'
+                creationTimestamp: null
+                labels:
+                  app.kubernetes.io/instance: amq-streams-console-operator-v3.0.1-3
+              spec:
+                containers:
+                  - resources: {}
+                    readinessProbe:
+                      failureThreshold: 3
+                      httpGet:
+                        path: /q/health/ready
+                        port: 8080
+                        scheme: HTTP
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                      successThreshold: 1
+                      timeoutSeconds: 10
+                    name: streamshub-console-operator
+                    livenessProbe:
+                      failureThreshold: 3
+                      httpGet:
+                        path: /q/health/live
+                        port: 8080
+                        scheme: HTTP
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                      successThreshold: 1
+                      timeoutSeconds: 10
+                    env:
+                      - name: CONSOLE_DEPLOYMENT_DEFAULT_IMAGE_TAG
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: 'metadata.labels[''app.kubernetes.io/version'']'
+                      - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_CONSOLERECONCILER_NAMESPACES
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: 'metadata.annotations[''olm.targetNamespaces'']'
+                      - name: CONSOLE_DEPLOYMENT_DEFAULT_API_IMAGE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: 'metadata.annotations[''default-api-image'']'
+                      - name: CONSOLE_DEPLOYMENT_DEFAULT_UI_IMAGE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: 'metadata.annotations[''default-ui-image'']'
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop:
+                          - ALL
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: true
+                      seccompProfile:
+                        type: RuntimeDefault
+                    ports:
+                      - containerPort: 8080
+                        name: http
+                        protocol: TCP
+                    imagePullPolicy: Always
+                    startupProbe:
+                      failureThreshold: 3
+                      httpGet:
+                        path: /q/health/started
+                        port: 8080
+                        scheme: HTTP
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                      successThreshold: 1
+                      timeoutSeconds: 10
+                    image: 'registry.redhat.io/amq-streams/console-rhel9-operator@sha256:622cdec705ee48b0d2c3faa251dff65e0dcde3c2557fbf8408b1dc69ed1cc90c'
+                serviceAccountName: streamshub-console-operator
+    strategy: deployment
+  maintainers:
+    - email: customerservice@redhat.com
+      name: Red Hat
+  description: |-
+    The Red Hat streams for Apache Kafka Console provides a web-based user interface tool for monitoring Apache Kafka® instances within an OpenShift cluster.
 
-  kafkaClusters:
-    - name: dev-kafka-cluster
-      namespace: dev-kafka
-      listener: plain
-
-      properties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-
-      adminProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-          - name: default.api.timeout.ms
-            value: "30000"
-
-      consumerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-      producerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-  metricsSources:
-    - name: kafka-metrics
-      type: openshift-monitoring
-      url: "http://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+    It features a user-friendly way to view Kafka topics and consumer groups, facilitating the searching and filtering of streamed messages. The console also offers insights into Kafka broker disk usage, helping administrators monitor and optimize resource utilization. By simplifying complex Kafka operations, the streams for Apache Kafka Console enhances the efficiency and effectiveness of data streaming management within OpenShift environments.
+  replaces: amq-streams-console.v2.9.0-5
+status:
+  cleanup: {}
+  conditions:
+    - lastTransitionTime: '2026-04-17T21:56:17Z'
+      lastUpdateTime: '2026-04-17T21:56:17Z'
+      message: waiting for install components to report healthy
+      phase: Installing
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-17T21:56:17Z'
+      lastUpdateTime: '2026-04-17T21:56:18Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Installing
+      reason: InstallWaiting
+    - lastTransitionTime: '2026-04-17T21:57:07Z'
+      lastUpdateTime: '2026-04-17T21:57:07Z'
+      message: install strategy completed with no errors
+      phase: Succeeded
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-18T18:16:59Z'
+      lastUpdateTime: '2026-04-18T18:16:59Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Failed
+      reason: ComponentUnhealthy
+    - lastTransitionTime: '2026-04-18T18:17:17Z'
+      lastUpdateTime: '2026-04-18T18:17:17Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Pending
+      reason: NeedsReinstall
+    - lastTransitionTime: '2026-04-18T18:17:25Z'
+      lastUpdateTime: '2026-04-18T18:17:25Z'
+      message: 'all requirements found, attempting install'
+      phase: InstallReady
+      reason: AllRequirementsMet
+    - lastTransitionTime: '2026-04-18T18:17:30Z'
+      lastUpdateTime: '2026-04-18T18:17:30Z'
+      message: waiting for install components to report healthy
+      phase: Installing
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-18T18:17:32Z'
+      lastUpdateTime: '2026-04-18T18:17:32Z'
+      message: install strategy completed with no errors
+      phase: Succeeded
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-18T18:25:02Z'
+      lastUpdateTime: '2026-04-18T18:25:02Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Failed
+      reason: ComponentUnhealthy
+    - lastTransitionTime: '2026-04-18T18:25:35Z'
+      lastUpdateTime: '2026-04-18T18:25:35Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Pending
+      reason: NeedsReinstall
+    - lastTransitionTime: '2026-04-18T18:26:04Z'
+      lastUpdateTime: '2026-04-18T18:26:04Z'
+      message: 'all requirements found, attempting install'
+      phase: InstallReady
+      reason: AllRequirementsMet
+    - lastTransitionTime: '2026-04-18T18:27:07Z'
+      lastUpdateTime: '2026-04-18T18:27:07Z'
+      message: waiting for install components to report healthy
+      phase: Installing
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-18T18:27:07Z'
+      lastUpdateTime: '2026-04-18T18:27:13Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Installing
+      reason: InstallWaiting
+    - lastTransitionTime: '2026-04-18T18:29:19Z'
+      lastUpdateTime: '2026-04-18T18:29:19Z'
+      message: install strategy completed with no errors
+      phase: Succeeded
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-20T16:25:20Z'
+      lastUpdateTime: '2026-04-20T16:25:20Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Failed
+      reason: ComponentUnhealthy
+    - lastTransitionTime: '2026-04-20T16:25:21Z'
+      lastUpdateTime: '2026-04-20T16:25:21Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Pending
+      reason: NeedsReinstall
+    - lastTransitionTime: '2026-04-20T16:25:22Z'
+      lastUpdateTime: '2026-04-20T16:25:22Z'
+      message: 'all requirements found, attempting install'
+      phase: InstallReady
+      reason: AllRequirementsMet
+    - lastTransitionTime: '2026-04-20T16:25:23Z'
+      lastUpdateTime: '2026-04-20T16:25:23Z'
+      message: waiting for install components to report healthy
+      phase: Installing
+      reason: InstallSucceeded
+    - lastTransitionTime: '2026-04-20T16:25:23Z'
+      lastUpdateTime: '2026-04-20T16:25:24Z'
+      message: 'installing: waiting for deployment amq-streams-console-operator-v3.0.1-3 to become ready: deployment "amq-streams-console-operator-v3.0.1-3" not available: Deployment does not have minimum availability.'
+      phase: Installing
+      reason: InstallWaiting
+    - lastTransitionTime: '2026-04-20T16:25:29Z'
+      lastUpdateTime: '2026-04-20T16:25:29Z'
+      message: install strategy completed with no errors
+      phase: Succeeded
+      reason: InstallSucceeded
+  lastTransitionTime: '2026-04-20T16:25:29Z'
+  lastUpdateTime: '2026-04-20T16:25:29Z'
+  message: The operator is running in streams-kafka-console but is managing this namespace
+  phase: Succeeded
+  reason: Copied
+  requirementStatus:
+    - group: operators.coreos.com
+      kind: ClusterServiceVersion
+      message: CSV minKubeVersion (1.25.0) less than server version (v1.32.9)
+      name: amq-streams-console.v3.0.1-3
+      status: Present
+      version: v1alpha1
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      message: CRD is present and Established condition is true
+      name: consoles.console.streamshub.github.com
+      status: Present
+      uuid: 20270174-edaa-4c12-b186-9720f1143abb
+      version: v1
+    - group: ''
+      kind: ConfigMap
+      message: Native API exists
+      name: v1.
+      status: Present
+      version: v1
+    - group: ''
+      kind: Secret
+      message: Native API exists
+      name: v1.
+      status: Present
+      version: v1
+    - group: ''
+      kind: Service
+      message: Native API exists
+      name: v1.
+      status: Present
+      version: v1
+    - group: ''
+      kind: ServiceAccount
+      message: Native API exists
+      name: v1.
+      status: Present
+      version: v1
+    - group: apps
+      kind: Deployment
+      message: Native API exists
+      name: v1.apps
+      status: Present
+      version: v1
+    - group: networking.k8s.io
+      kind: Ingress
+      message: Native API exists
+      name: v1.networking.k8s.io
+      status: Present
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      message: Native API exists
+      name: v1.rbac.authorization.k8s.io
+      status: Present
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      message: Native API exists
+      name: v1.rbac.authorization.k8s.io
+      status: Present
+      version: v1
+    - dependents:
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list","watch","patch","update","create","delete"],"apiGroups":["console.streamshub.github.com"],"resources":["consoles","consoles/status","consoles/finalizers"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":["rbac.authorization.k8s.io"],"resources":["clusterrolebindings"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":[""],"resources":["serviceaccounts"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":["apps"],"resources":["deployments"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":[""],"resources":["services"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":["networking.k8s.io"],"resources":["ingresses"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":[""],"resources":["configmaps"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":["rbac.authorization.k8s.io"],"resources":["clusterroles"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create","delete","get","list","patch","update","watch"],"apiGroups":[""],"resources":["secrets"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list"],"apiGroups":["apiextensions.k8s.io"],"resources":["customresourcedefinitions"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["create"],"apiGroups":["coordination.k8s.io"],"resources":["leases"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list","watch","delete","patch","update","create"],"apiGroups":["coordination.k8s.io"],"resources":["leases"],"resourceNames":["streamshub-console-operator-lease"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get"],"apiGroups":["route.openshift.io"],"resources":["routes"],"resourceNames":["thanos-querier"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list","watch"],"apiGroups":[""],"resources":["nodes","nodes/proxy","services","endpoints","pods"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list","watch"],"apiGroups":["extensions"],"resources":["ingresses"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get"],"nonResourceURLs":["/metrics"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","watch","list"],"apiGroups":["kafka.strimzi.io"],"resources":["kafkas","kafkanodepools","kafkarebalances","kafkatopics","kafkausers"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["patch"],"apiGroups":["kafka.strimzi.io"],"resources":["kafkas","kafkarebalances"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","list"],"apiGroups":[""],"resources":["pods"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get"],"apiGroups":[""],"resources":["namespaces"]}'
+          status: Satisfied
+          version: v1
+        - group: rbac.authorization.k8s.io
+          kind: PolicyRule
+          message: 'cluster rule:{"verbs":["get","create","update"],"apiGroups":["monitoring.coreos.com"],"resources":["prometheuses/api"],"resourceNames":["k8s"]}'
+          status: Satisfied
+          version: v1
+      group: ''
+      kind: ServiceAccount
+      message: ''
+      name: streamshub-console-operator
+      status: Present
+      version: v1
