@@ -142,8 +142,8 @@ spec:
             value: '30000'
 
   metricsSources:
-    - name: "kafka-metrics"
-      type: "openshift-monitoring"
+    - name: kafka-metrics
+      type: openshift-monitoring
       url: {{ .Values.console.metrics.prometheus.url | quote }}
 
 ---
@@ -155,6 +155,7 @@ metadata:
   namespace: dev-kafka
   labels:
     app.kubernetes.io/managed-by: Helm
+
 type: Opaque
 stringData:
   console-config.yaml: |
@@ -187,13 +188,3 @@ stringData:
           producerProperties:
             security.protocol: PLAINTEXT
             request.timeout.ms: "30000"
-
-
-
-________________________________________________________________________________________
-values.yaml
-
-console:
-  metrics:
-    prometheus:
-      url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
