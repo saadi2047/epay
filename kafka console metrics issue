@@ -2,3 +2,6 @@ metricsSources:
     - name: "kafka-metrics"
       type: "openshift-monitoring"
       url: {{ .Values.console.metrics.prometheus.url | quote }}
+
+
+oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i "metric\|prometheus\|warn"
