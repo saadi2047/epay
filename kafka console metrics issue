@@ -25,3 +25,23 @@ for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
     -o jsonpath='{.spec.namespaceSelector}' 2>/dev/null || echo "NOT FOUND"
   echo ""
 done
+
+[osuser@bastion ~]$ for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
+>   echo "=== $ns ==="
+>   oc get podmonitor kafka-resources-metrics -n $ns \
+>     -o jsonpath='{.spec.namespaceSelector}' 2>/dev/null || echo "NOT FOUND"
+>   echo ""
+> done
+=== dev-kafka ===
+{"matchNames":["test-metrics"]}
+=== sit-kafka ===
+NOT FOUND
+
+=== uat-kafka ===
+NOT FOUND
+
+=== int-kafka ===
+NOT FOUND
+
+[osuser@bastion ~]$
+
