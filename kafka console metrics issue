@@ -1,79 +1,93 @@
-oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
-  -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
-
-# Verify
-oc get podmonitor kafka-resources-metrics -n dev-kafka -o jsonpath='{.spec.namespaceSelector}'
-
-
-
-# Add label so user-workload Prometheus scrapes this namespace
-oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
-
-# Verify
-oc get namespace dev-kafka --show-labels
-
-
-
-
-
-
-Perfect. Only `dev-kafka` has the wrong PodMonitor. Others don't have it yet. Here is your exact step-by-step plan:
-
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka \
+>   -o jsonpath='{.spec.namespaceSelector}'
+{"matchNames":["test-metrics"]}[osuser@bastion ~]$ oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
+>   -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
+podmonitor.monitoring.coreos.com/kafka-resources-metrics patched
+[osuser@bastion ~]$ oc get podmonitor kafka-resources-metrics -n dev-kafka   -o jsonpath='{.spec.namespaceSelector}'
+{"matchNames":["dev-kafka"]}[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
+namespace/dev-kafka labeled
+[osuser@bastion ~]$ oc get namespace dev-kafka --show-labels
+NAME        STATUS   AGE    LABELS
+dev-kafka   Active   546d   env=dev,kubernetes.io/metadata.name=dev-kafka,openshift.io/user-monitoring=true,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+>   -o jsonpath='{.data.console-config\.yaml}' | base64 -d
 ---
-
-## Start Here — Step by Step
-
----
-
-### Step 1 — Fix PodMonitor namespace (bastion, safe, only touches dev-kafka)
-
-```bash
-oc patch podmonitor kafka-resources-metrics -n dev-kafka --type='json' \
-  -p='[{"op": "replace", "path": "/spec/namespaceSelector/matchNames/0", "value": "dev-kafka"}]'
-```
-
-Verify:
-```bash
-oc get podmonitor kafka-resources-metrics -n dev-kafka \
-  -o jsonpath='{.spec.namespaceSelector}'
-```
-
-Expected: `{"matchNames":["dev-kafka"]}`
-
----
-
-### Step 2 — Label dev-kafka namespace (bastion, safe)
-
-```bash
-oc label namespace dev-kafka openshift.io/user-monitoring=true --overwrite
-```
-
-Verify:
-```bash
-oc get namespace dev-kafka --show-labels
-```
-
----
-
-### Step 3 — Read the Console Secret (bastion, read-only)
-
-```bash
-oc get secret dev-console-console-secret -n dev-kafka \
-  -o jsonpath='{.data.console-config\.yaml}' | base64 -d
-```
-
-Share this output here — we need to see the current console config before editing it.
-
----
-
-### Step 4 — Wait 2-3 minutes after Steps 1 & 2, then verify Prometheus is scraping
-
-```bash
-oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
-  curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
-  | python3 -m json.tool | head -20
-```
-
----
-
-**Start with Step 1 now and share each output before moving to next step.**
+kubernetes:
+  enabled: true
+security:
+  subjects: []
+  roles: []
+  audit: []
+  oidc: null
+metricsSources:
+- name: "kafka-metrics"
+  type: "openshift-monitoring"
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+schemaRegistries: []
+kafka:
+  clusters:
+  - name: "dev-kafka-cluster"
+    namespace: "dev-kafka"
+    listener: "plain"
+    security:
+      subjects: []
+      roles: []
+      audit: []
+    properties:
+      security.protocol: "PLAINTEXT"
+      bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
+    adminProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+      default.api.timeout.ms: "30000"
+    consumerProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+    producerProperties:
+      security.protocol: "PLAINTEXT"
+      request.timeout.ms: "30000"
+[osuser@bastion ~]$ ```oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
+>   curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
+>   | python3 -m json.tool | head -20
+> "
+> ^C
+[osuser@bastion ~]$ oc exec -n openshift-user-workload-monitoring prometheus-user-workload-0 -- \
+>   curl -s 'http://localhost:9090/api/v1/query?query=kafka_server_BrokerTopicMetrics_Count' \
+>   | python3 -m json.tool | head -20
+{
+    "status": "success",
+    "data": {
+        "resultType": "vector",
+        "result": [
+            {
+                "metric": {
+                    "__name__": "kafka_server_BrokerTopicMetrics_Count",
+                    "container": "kafka",
+                    "endpoint": "tcp-prometheus",
+                    "instance": "172.16.8.130:9404",
+                    "job": "dev-kafka/kafka-resources-metrics",
+                    "kubernetes_pod_name": "dev-kafka-cluster-controller-3",
+                    "name": "BytesInPerSec",
+                    "namespace": "dev-kafka",
+                    "node_ip": "10.177.142.141",
+                    "node_name": "worker1.dev.sbiepay.sbi",
+                    "pod": "dev-kafka-cluster-controller-3",
+                    "strimzi_io_broker_role": "false",
+                    "strimzi_io_cluster": "dev-kafka-cluster",
+Traceback (most recent call last):
+  File "/usr/lib64/python3.6/runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "/usr/lib64/python3.6/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/usr/lib64/python3.6/json/tool.py", line 50, in <module>
+    main()
+  File "/usr/lib64/python3.6/json/tool.py", line 45, in main
+    json.dump(obj, outfile, sort_keys=sort_keys, indent=4)
+  File "/usr/lib64/python3.6/json/__init__.py", line 180, in dump
+    fp.write(chunk)
+BrokenPipeError: [Errno 32] Broken pipe
+[osuser@bastion ~]$
