@@ -1,23 +1,96 @@
-oc delete secret dev-console-console-secret -n dev-kafka
-oc delete pod -l app.kubernetes.io/name=console -n dev-kafka
-
-oc get secret dev-console-console-secret -n dev-kafka \
--o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-
-
-
-oc patch consoles.console.streamshub.github.com dev-console -n dev-kafka \
-  -p '{"metadata":{"annotations":{"force-reconcile":"'$(date +%s)'"}}}' \
-  --type=merge
-
-
-oc get secret dev-console-console-secret -n dev-kafka \
--o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-curl -k https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi/api/v1/query?query=up
-
-
-
-oc describe consoles.console.streamshub.github.com dev-console -n dev-kafka
+[osuser@bastion ~]$ oc delete secret dev-console-console-secret -n dev-kafka
+secret "dev-console-console-secret" deleted
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc delete pod -l app.kubernetes.io/name=console -n dev-kafka
+No resources found
+[osuser@bastion ~]$ oc get pods -n dev-kafka
+NAME                                                 READY   STATUS    RESTARTS          AGE
+dev-console-console-deployment-54cd66d477-4t62d      2/2     Running   0                 24s
+dev-kafka-cluster-broker-0                           1/1     Running   1 (3d ago)        5d
+dev-kafka-cluster-broker-1                           1/1     Running   3 (35h ago)       4d23h
+dev-kafka-cluster-broker-2                           1/1     Running   0                 4d23h
+dev-kafka-cluster-controller-3                       1/1     Running   0                 5d
+dev-kafka-cluster-controller-4                       1/1     Running   0                 5d
+dev-kafka-cluster-controller-5                       1/1     Running   0                 5d
+dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   132 (153m ago)    39d
+dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (27d ago)       39d
+dev-kafka-connect-mq-test-connect-0                  1/1     Running   714 (9m54s ago)   39d
+dev-kafka-connect-mq-test-connect-1                  1/1     Running   4197 (13m ago)    95d
+dev-kafka-connect-mq-test-connect-2                  1/1     Running   554 (9m54s ago)   39d
+dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                 116d
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc patch consoles.console.streamshub.github.com dev-console -n dev-kafka \
+>   -p '{"metadata":{"annotations":{"force-reconcile":"'$(date +%s)'"}}}' \
+>   --type=merge
+console.console.streamshub.github.com/dev-console patched
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+> curl -k https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi/api/v1/query?query=up
+Defaulted container "console-api" out of: console-api, console-ui
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    13  100    13    0     0      2      0  0:00:06  0:00:06 --:--:--     3
+Unauthorized
+[osuser@bastion ~]$ oc describe consoles.console.streamshub.github.com dev-console -n dev-kafka
+Name:         dev-console
+Namespace:    dev-kafka
+Labels:       app.kubernetes.io/managed-by=Helm
+Annotations:  force-reconcile: 1777286254
+              meta.helm.sh/release-name: epay-common
+              meta.helm.sh/release-namespace: dev-epay-common
+API Version:  console.streamshub.github.com/v1alpha1
+Kind:         Console
+Metadata:
+  Creation Timestamp:  2026-04-21T11:10:40Z
+  Finalizers:
+    consoles.console.streamshub.github.com/finalizer
+  Generation:        5
+  Resource Version:  727735854
+  UID:               7c866b04-fd85-40f1-a2b9-0b71de4b2ce3
+Spec:
+  Hostname:  dev-kafkaconsole.apps.dev.sbiepay.sbi
+  Kafka Clusters:
+    Admin Properties:
+      Values:
+        Name:   security.protocol
+        Value:  PLAINTEXT
+        Name:   request.timeout.ms
+        Value:  30000
+        Name:   default.api.timeout.ms
+        Value:  30000
+    Consumer Properties:
+      Values:
+        Name:   security.protocol
+        Value:  PLAINTEXT
+        Name:   request.timeout.ms
+        Value:  30000
+    Listener:   plain
+    Name:       dev-kafka-cluster
+    Namespace:  dev-kafka
+    Producer Properties:
+      Values:
+        Name:   security.protocol
+        Value:  PLAINTEXT
+        Name:   request.timeout.ms
+        Value:  30000
+    Properties:
+      Values:
+        Name:   security.protocol
+        Value:  PLAINTEXT
+  Metrics Sources:
+    Name:  kafka-metrics
+    Type:  openshift-monitoring
+    URL:   http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+Status:
+  Conditions:
+    Last Transition Time:  2026-04-27T10:36:32.899154768Z
+    Message:               All resources ready
+    Status:                True
+    Type:                  Ready
+  Observed Generation:     5
+Events:                    <none>
+[osuser@bastion ~]$
