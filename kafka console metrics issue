@@ -1,44 +1,15 @@
-[osuser@bastion ~]$ oc get pods -n dev-kafka
-NAME                                                 READY   STATUS    RESTARTS           AGE
-dev-console-console-deployment-77c9c88945-mlfgj      2/2     Running   0                  151m
-dev-kafka-cluster-broker-0                           1/1     Running   1 (3d ago)         4d23h
-dev-kafka-cluster-broker-1                           1/1     Running   3 (34h ago)        4d23h
-dev-kafka-cluster-broker-2                           1/1     Running   0                  4d23h
-dev-kafka-cluster-controller-3                       1/1     Running   0                  4d23h
-dev-kafka-cluster-controller-4                       1/1     Running   0                  4d23h
-dev-kafka-cluster-controller-5                       1/1     Running   0                  4d23h
-dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   132 (143m ago)     39d
-dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (27d ago)        39d
-dev-kafka-connect-mq-test-connect-0                  1/1     Running   713 (3m21s ago)    39d
-dev-kafka-connect-mq-test-connect-1                  1/1     Running   4197 (3m21s ago)   95d
-dev-kafka-connect-mq-test-connect-2                  1/1     Running   553 (3m21s ago)    39d
-dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                  116d
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
-> -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o yaml > backup-secret.yaml
-[osuser@bastion ~]$ oc delete secret dev-console-console-secret -n dev-kafka
-secret "dev-console-console-secret" deleted
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafk
-Error from server (NotFound): namespaces "dev-kafk" not found
-[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
-deployment.apps/dev-console-console-deployment restarted
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
-Defaulted container "console-api" out of: console-api, console-ui
-[osuser@bastion ~]$
+oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
 
 
 
+oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
+
+
+metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+    url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+
+
+oc get secret dev-console-console-secret -n dev-kafka \
+-o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
