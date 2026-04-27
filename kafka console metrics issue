@@ -1,230 +1,96 @@
-Good — this output finally gives a **clear, no-confusion picture**. I’ll explain straight and then tell you **exact fix**.
-
----
-
-# 🚨 WHAT YOUR OUTPUT PROVES
-
-## ✅ Operator is working
-
-```bash
-oc get console.console.streamshub.github.com -n dev-kafka
-```
-
-✔ `dev-console` exists → operator is active
-
----
-
-## ❌ BUT Secret is STILL WRONG
-
-```bash
-oc get secret dev-console-console-secret ...
-```
-
-👉 Current value:
-
-```text
-https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi ❌
-```
-
-👉 Expected:
-
-```text
-http://thanos-querier.openshift-monitoring.svc.cluster.local:9091 ✅
-```
-
----
-
-## 🔴 MOST IMPORTANT OBSERVATION
-
-```bash
-managed-by: streamshub-console-operator
-```
-
-👉 Means:
-
-```text
-Operator IS controlling the Secret ✅
-BUT it is NOT updating it ❌
-```
-
----
-
-# 💥 ROOT CAUSE (FINAL)
-
-👉 Your **Console CR change is NOT applied / NOT reconciled**
-
-That’s why:
-
-* CR updated (maybe in Git) ❌ not applied properly
-* Operator still using OLD config ❌
-* Secret unchanged ❌
-
----
-
-# 🚨 ALSO YOUR COMMAND MISTAKE
-
-You ran:
-
-```bash
-oc get console dev-console ❌
-```
-
-👉 WRONG resource
-
-Correct is:
-
-```bash
-oc get consoles.console.streamshub.github.com dev-console -n dev-kafka
-```
-
----
-
-# 🎯 STEP-BY-STEP FINAL FIX (DO THIS NOW)
-
----
-
-## ✅ STEP 1: Check actual Console CR (REAL SOURCE)
-
-```bash
-oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
-```
-
-👉 You will likely see:
-
-```yaml
-url: https://thanos-querier-openshift-monitoring.apps... ❌
-```
-
----
-
-## ✅ STEP 2: Fix CR DIRECTLY (no pipeline confusion)
-
-```bash
-oc edit consoles.console.streamshub.github.com dev-console -n dev-kafka
-```
-
----
-
-### 🔥 CHANGE THIS:
-
-```yaml
-metricsSources:
-  - name: kafka-metrics
-    type: openshift-monitoring
-    url: https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi ❌
-```
-
----
-
-### ✅ TO THIS:
-
-```yaml
-metricsSources:
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A5 metricsSources
+  metricsSources:
   - name: kafka-metrics
     type: openshift-monitoring
     url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
-```
+status:
+  conditions:
+[osuser@bastion ~]$ oc cat consoles.console.streamshub.github.com dev-console -n dev-kafka
+error: unknown command "cat" for "oc"
 
----
-
-## ✅ STEP 3: Save & exit
-
-👉 Operator will automatically:
-
-```text
-CR updated → Secret updated → Pod restarted
-```
-
----
-
-## ✅ STEP 4: VERIFY SECRET UPDATED
-
-```bash
-oc get secret dev-console-console-secret -n dev-kafka \
--o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
-```
-
-👉 MUST show:
-
-```text
-http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
-```
-
----
-
-## ✅ STEP 5: Check logs
-
-```bash
-oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
-```
-
-👉 ❌ This should disappear:
-
-```text
-Prometheus URL is not configured
-```
-
----
-
-# ⚠️ IMPORTANT (WHY PIPELINE DIDN’T WORK)
-
-👉 Your Helm deploy is targeting:
-
-```text
-namespace: dev-epay-common
-```
-
-👉 But Console CR is in:
-
-```text
-namespace: dev-kafka
-```
-
-👉 So:
-
-```text
-Helm changes NOT affecting Console CR ❌
-```
-
----
-
-# 🎯 FINAL HINGLISH TRUTH
-
-👉 Tumhara issue simple hai:
-
-* Operator sahi hai ✅
-* Kafka sahi hai ✅
-* Prometheus sahi hai ✅
-
-👉 Problem sirf:
-
-```text
-Console CR me galat URL hai ❌
-```
-
----
-
-# 🚀 WHAT YOU SHOULD DO AFTER FIX
-
-👉 After manual fix works:
-
-Then fix your Git:
-
-* ensure Helm deploys to `dev-kafka`
-* OR manage Console CR separately
-
----
-
-# 🎯 FINAL ONE-LINE
-
-👉 Fix **Console CR URL**, not Secret, not Kafka, not Prometheus
-
----
-
-If after this still not working, send:
-
-```bash
-oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m
-```
-
-👉 Now we are at **last 1% — will close fully**.
+Did you mean this?
+        cp
+        get
+        set
+        tag
+        wait
+[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com -o yaml dev-console -n dev-kafka
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  annotations:
+    meta.helm.sh/release-name: epay-common
+    meta.helm.sh/release-namespace: dev-epay-common
+  creationTimestamp: "2026-04-21T11:10:40Z"
+  finalizers:
+  - consoles.console.streamshub.github.com/finalizer
+  generation: 5
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: dev-console
+  namespace: dev-kafka
+  resourceVersion: "727513188"
+  uid: 7c866b04-fd85-40f1-a2b9-0b71de4b2ce3
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+  kafkaClusters:
+  - adminProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+      - name: default.api.timeout.ms
+        value: "30000"
+    consumerProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+    listener: plain
+    name: dev-kafka-cluster
+    namespace: dev-kafka
+    producerProperties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+      - name: request.timeout.ms
+        value: "30000"
+    properties:
+      values:
+      - name: security.protocol
+        value: PLAINTEXT
+  metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+    url: http://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+status:
+  conditions:
+  - lastTransitionTime: "2026-04-27T07:54:47.572775993Z"
+    message: All resources ready
+    status: "True"
+    type: Ready
+  observedGeneration: 5
+[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
+> -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep url
+  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i prometheus
+Defaulted container "console-api" out of: console-api, console-ui
+2026-04-27 07:55:20,104 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-1) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:21,004 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-4) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:21,289 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-10) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:21,561 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-12) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:21,915 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-15) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:22,135 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-10) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:22,481 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-14) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:22,767 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-12) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:55:22,880 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-15) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 07:56:12,672 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-14) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 09:03:27,540 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-31) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 09:17:29,572 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-34) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 09:38:44,276 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-7) Kafka cluster metrics were requested, but Prometheus URL is not configured
+2026-04-27 09:39:13,359 WARN  [com.git.str.con.api.ser.KafkaClusterService] (ForkJoinPool.commonPool-worker-45) Kafka cluster metrics were requested, but Prometheus URL is not configured
+[osuser@bastion ~]$
