@@ -24,3 +24,14 @@ oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
 curl -s localhost:9404/metrics | grep kafka_ | head
 
 oc get podmonitor -n dev-kafka -o wide
+
+
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+nc -vz dev-kafka-cluster-kafka-bootstrap 9092
+
+
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+nc -vz dev-kafka-cluster-kafka-brokers 9092
+
+
+oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
