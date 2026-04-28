@@ -9,3 +9,79 @@ nc -vz dev-kafka-cluster-kafka-bootstrap 9093
 
 
 oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
+
+
+
+
+
+
+
+
+
+
+
+
+[osuser@bastion ~]$ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
+    listeners:
+    - name: plain
+      port: 9092
+      tls: false
+      type: internal
+    - name: tls
+      port: 9093
+      tls: true
+      type: internal
+    - name: external
+      port: 9094
+--
+  listeners:
+  - addresses:
+    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
+      port: 9092
+    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
+    name: plain
+  - addresses:
+    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
+      port: 9093
+    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9093
+    certificates:
+[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+> nc -vz dev-kafka-cluster-kafka-bootstrap 9092
+Defaulted container "console-api" out of: console-api, console-ui
+time="2026-04-28T07:35:28Z" level=error msg="exec failed: unable to start container process: exec: \"nc\": executable file not found in $PATH"
+command terminated with exit code 255
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+> nc -vz dev-kafka-cluster-kafka-bootstrap 9093
+Defaulted container "console-api" out of: console-api, console-ui
+time="2026-04-28T07:35:36Z" level=error msg="exec failed: unable to start container process: exec: \"nc\": executable file not found in $PATH"
+command terminated with exit code 255
+[osuser@bastion ~]$ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
+    listeners:
+    - name: plain
+      port: 9092
+      tls: false
+      type: internal
+    - name: tls
+      port: 9093
+      tls: true
+      type: internal
+    - name: external
+      port: 9094
+--
+  listeners:
+  - addresses:
+    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
+      port: 9092
+    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
+    name: plain
+  - addresses:
+    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
+      port: 9093
+    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9093
+    certificates:
+[osuser@bastion ~]$
+
