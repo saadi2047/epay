@@ -12,10 +12,18 @@ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
 
 
 
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9092 && echo OK || echo FAIL"
+
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9093 && echo OK || echo FAIL"
+
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+env | grep KAFKA_ADVERTISED
 
 
-
-
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+curl -v dev-kafka-cluster-kafka-bootstrap:9092
 
 
 
