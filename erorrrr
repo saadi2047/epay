@@ -9,3 +9,6 @@ oc adm policy add-cluster-role-to-user cluster-monitoring-view \
 clusterrole.rbac.authorization.k8s.io/cluster-monitoring-view added: "dev-console-console-serviceaccount"
 [osuser@bastion ~]$
 
+
+
+oc logs -n dev-kafka deployment/dev-console-console-deployment --since=5m
