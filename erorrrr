@@ -1,73 +1,11 @@
-1st refresh cntlr+shift+R
-
-Timed out waiting for backend service
-Timed out waiting for backend service: Timed out waiting for a node assignment. Call: listNodes (5041)
-
-2nd refresh cntlr+shift+R
-Timed out waiting for backend service
-Timed out waiting for backend service: Call(callName=describeMetadataQuorum, deadlineMs=1777361076675, tries=1, nextAllowedTryMs=1777361076795) timed out at 1777361076681 after 1 attempt(s) (5041)
-
-3rd  refresh cntlr+shift+R
-Timed out waiting for backend service
-Timed out waiting for backend service: Timed out waiting to send the call. Call: listNodes (5041)
+oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
 
 
-4th refresh cntlr+shift+R
-Hmmm… can't reach this page
-The connection was reset.
-Try:
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+nc -vz dev-kafka-cluster-kafka-bootstrap 9092
 
-Checking the connection
-Checking the proxy and the firewall
-ERR_CONNECTION_RESET
-
-5th refresh 
-cntlr+shift+R
-
-worked PAGE LOADED BUT METRICS STILL NOT AVAILABLE
+oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+nc -vz dev-kafka-cluster-kafka-bootstrap 9093
 
 
-__________________________________________pod logs_________________________________________
-
-[osuser@bastion ~]$ oc get po -n dev-kafka
-NAME                                                 READY   STATUS    RESTARTS         AGE
-dev-console-console-deployment-6c54fb854d-k8ggf      2/2     Running   0                45m
-dev-kafka-cluster-broker-0                           1/1     Running   2 (7h55m ago)    5d20h
-dev-kafka-cluster-broker-1                           1/1     Running   3 (2d7h ago)     5d20h
-dev-kafka-cluster-broker-2                           1/1     Running   0                5d20h
-dev-kafka-cluster-controller-3                       1/1     Running   0                5d20h
-dev-kafka-cluster-controller-4                       1/1     Running   0                5d20h
-dev-kafka-cluster-controller-5                       1/1     Running   0                5d20h
-dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   151 (133m ago)   40d
-dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (28d ago)      40d
-dev-kafka-connect-mq-test-connect-0                  1/1     Running   781 (42m ago)    40d
-dev-kafka-connect-mq-test-connect-1                  1/1     Running   4273 (35m ago)   95d
-dev-kafka-connect-mq-test-connect-2                  1/1     Running   634 (42m ago)    40d
-dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                117d
-[osuser@bastion ~]$ oc logs -f dev-console-console-deployment-6c54fb854d-k8ggf -n dev-kafka
-Defaulted container "console-api" out of: console-api, console-ui
-INFO exec -a "java" java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -cp "." -jar /deployments/quarkus-run.jar
-INFO running in /deployments
-__  ____  __  _____   ___  __ ____  ______
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
- -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
---\___\_\____/_/ |_/_/|_/_/|_|\____/___/
-2026-04-28 07:30:36,103 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 6ms 395
-2026-04-28 07:30:36,184 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 86ms 1225
-2026-04-28 07:30:37,225 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 68ms 1225
-2026-04-28 07:31:06,356 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 55ms 1225
-2026-04-28 07:31:06,376 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 46ms 1225
-2026-04-28 07:31:06,458 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 139ms 1225
-2026-04-28 07:31:37,166 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
-2026-04-28 07:31:37,212 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 22ms 395
-2026-04-28 07:31:41,090 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=cfde7dab-5afe-4cea-a3e0-477fc5d9a648 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777361501084, tries=1, nextAllowedTryMs=1777361501169) timed out at 1777361501089 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777361501084, tries=1, nextAllowedTryMs=1777361501169) timed out at 1777361501089 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-
-2026-04-28 07:31:41,092 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5032ms 297
-2026-04-28 07:31:42,172 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=8d8f9f91-209a-47c3-a095-a0b1a5e11a0e title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777361502166, tries=1, nextAllowedTryMs=1777361502273) timed out at 1777361502171 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777361502166, tries=1, nextAllowedTryMs=1777361502273) timed out at 1777361502171 after 1 attempt(s)
-Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
-
-2026-04-28 07:31:42,174 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5012ms 297
-2026-04-28 07:32:06,398 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 53ms 1225
-2026-04-28 07:32:06,400 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 53ms 1225
-2026-04-28 07:32:06,419 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 83ms 1225
+oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
