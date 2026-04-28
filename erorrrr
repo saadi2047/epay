@@ -1,3 +1,11 @@
 oc adm policy add-cluster-role-to-user cluster-monitoring-view \
   -z dev-console-console-serviceaccount \
   -n dev-kafka
+
+---------------------------------
+[osuser@bastion ~]$ oc adm policy add-cluster-role-to-user cluster-monitoring-view \
+>   -z dev-console-console-serviceaccount \
+>   -n dev-kafka
+clusterrole.rbac.authorization.k8s.io/cluster-monitoring-view added: "dev-console-console-serviceaccount"
+[osuser@bastion ~]$
+
