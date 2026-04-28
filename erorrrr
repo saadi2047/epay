@@ -1,219 +1,73 @@
-oc get podmonitor kafka-resources-metrics -n dev-kafka -o yaml
+1st refresh cntlr+shift+R
+
+Timed out waiting for backend service
+Timed out waiting for backend service: Timed out waiting for a node assignment. Call: listNodes (5041)
+
+2nd refresh cntlr+shift+R
+Timed out waiting for backend service
+Timed out waiting for backend service: Call(callName=describeMetadataQuorum, deadlineMs=1777361076675, tries=1, nextAllowedTryMs=1777361076795) timed out at 1777361076681 after 1 attempt(s) (5041)
+
+3rd  refresh cntlr+shift+R
+Timed out waiting for backend service
+Timed out waiting for backend service: Timed out waiting to send the call. Call: listNodes (5041)
 
 
-oc get podmonitor kafka-resources-metrics -n dev-kafka \
--o jsonpath='{.spec.selector}{"\n"}{.spec.namespaceSelector}{"\n"}{.spec.podMetricsEndpoints}'
+4th refresh cntlr+shift+R
+Hmmm… can't reach this page
+The connection was reset.
+Try:
+
+Checking the connection
+Checking the proxy and the firewall
+ERR_CONNECTION_RESET
+
+5th refresh 
+cntlr+shift+R
+
+worked PAGE LOADED BUT METRICS STILL NOT AVAILABLE
 
 
+__________________________________________pod logs_________________________________________
 
-for ns in dev-kafka sit-kafka uat-kafka int-kafka; do
-  echo "=== $ns ==="
-  oc get podmonitor kafka-resources-metrics -n $ns 2>/dev/null || echo "NOT FOUND"
-done
+[osuser@bastion ~]$ oc get po -n dev-kafka
+NAME                                                 READY   STATUS    RESTARTS         AGE
+dev-console-console-deployment-6c54fb854d-k8ggf      2/2     Running   0                45m
+dev-kafka-cluster-broker-0                           1/1     Running   2 (7h55m ago)    5d20h
+dev-kafka-cluster-broker-1                           1/1     Running   3 (2d7h ago)     5d20h
+dev-kafka-cluster-broker-2                           1/1     Running   0                5d20h
+dev-kafka-cluster-controller-3                       1/1     Running   0                5d20h
+dev-kafka-cluster-controller-4                       1/1     Running   0                5d20h
+dev-kafka-cluster-controller-5                       1/1     Running   0                5d20h
+dev-kafka-cluster-cruise-control-7678c88585-67rjz    1/1     Running   151 (133m ago)   40d
+dev-kafka-cluster-entity-operator-656dcf5cdd-d2nrk   2/2     Running   1 (28d ago)      40d
+dev-kafka-connect-mq-test-connect-0                  1/1     Running   781 (42m ago)    40d
+dev-kafka-connect-mq-test-connect-1                  1/1     Running   4273 (35m ago)   95d
+dev-kafka-connect-mq-test-connect-2                  1/1     Running   634 (42m ago)    40d
+dev-kafka-mirror-maker-mirrormaker2-0                0/1     Pending   0                117d
+[osuser@bastion ~]$ oc logs -f dev-console-console-deployment-6c54fb854d-k8ggf -n dev-kafka
+Defaulted container "console-api" out of: console-api, console-ui
+INFO exec -a "java" java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -cp "." -jar /deployments/quarkus-run.jar
+INFO running in /deployments
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2026-04-28 07:30:36,103 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 6ms 395
+2026-04-28 07:30:36,184 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 86ms 1225
+2026-04-28 07:30:37,225 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 68ms 1225
+2026-04-28 07:31:06,356 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 55ms 1225
+2026-04-28 07:31:06,376 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 46ms 1225
+2026-04-28 07:31:06,458 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 139ms 1225
+2026-04-28 07:31:37,166 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
+2026-04-28 07:31:37,212 INFO  [io.qua.htt.access-log] (executor-thread-5) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 22ms 395
+2026-04-28 07:31:41,090 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=cfde7dab-5afe-4cea-a3e0-477fc5d9a648 title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777361501084, tries=1, nextAllowedTryMs=1777361501169) timed out at 1777361501089 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777361501084, tries=1, nextAllowedTryMs=1777361501169) timed out at 1777361501089 after 1 attempt(s)
+Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
 
+2026-04-28 07:31:41,092 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5032ms 297
+2026-04-28 07:31:42,172 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-4) error=id=8d8f9f91-209a-47c3-a095-a0b1a5e11a0e title='Timed out waiting for backend service' detail='Call(callName=describeMetadataQuorum, deadlineMs=1777361502166, tries=1, nextAllowedTryMs=1777361502273) timed out at 1777361502171 after 1 attempt(s)' source=null: org.apache.kafka.common.errors.TimeoutException: Call(callName=describeMetadataQuorum, deadlineMs=1777361502166, tries=1, nextAllowedTryMs=1777361502273) timed out at 1777361502171 after 1 attempt(s)
+Caused by: org.apache.kafka.common.errors.DisconnectException: Cancelled describeMetadataQuorum request with correlation id 4 due to node 0 being disconnected
 
-oc get pods -n dev-kafka --show-labels | grep kafka
-
-
-
-oc get pod dev-kafka-cluster-broker-0 -n dev-kafka -o yaml | grep -A5 "ports:"
-
-
-
-oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
-curl -s localhost:9404/metrics | grep kafka_ | head
-
-oc get podmonitor -n dev-kafka -o wide
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-nc -vz dev-kafka-cluster-kafka-bootstrap 9092
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-nc -vz dev-kafka-cluster-kafka-brokers 9092
-
-
-oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
-================================================================================
-[osuser@bastion ~]$ oc apply -f configmap.yaml -n dev-kafka
-error: error parsing configmap.yaml: error converting YAML to JSON: yaml: line 11: could not find expected ':'
-[osuser@bastion ~]$ cat configmap.yaml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: kafka-metrics
-  labels:
-    app: strimzi
-data:
-  kafka-metrics-config.yml: |
-    # See https://github.com/prometheus/jmx_exporter for more info about JMX Prometheus Exporter
-metrics
-    lowercaseOutputName: true
-    rules:
-    # Special cases and very specific rules
-    - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value
-      name: kafka_server_$1_$2
-      type: GAUGE
-      labels:
-        clientId: "$3"
-        topic: "$4"
-        partition: "$5"
-    - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), brokerHost=(.+),
-brokerPort=(.+)><>Value
-      name: kafka_server_$1_$2
-      type: GAUGE
-      labels:
-        clientId: "$3"
-        broker: "$4:$5"
-    - pattern: kafka.server<type=(.+), cipher=(.+), protocol=(.+), listener=(.+),
-networkProcessor=(.+)><>connections
-      name: kafka_server_$1_connections_tls_info
-      type: GAUGE
-      labels:
-        cipher: "$2"
-        protocol: "$3"
-        listener: "$4"
-        networkProcessor: "$5"
-    - pattern: kafka.server<type=(.+), clientSoftwareName=(.+), clientSoftwareVersion=(.+),
-listener=(.+), networkProcessor=(.+)><>connections
-      name: kafka_server_$1_connections_software
-      type: GAUGE
-      labels:
-        clientSoftwareName: "$2"
-        clientSoftwareVersion: "$3"
-        listener: "$4"
-        networkProcessor: "$5"
-    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+-total):"
-      name: kafka_server_$1_$4
-      type: COUNTER
-      labels:
-        listener: "$2"
-        networkProcessor: "$3"
-    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
-      name: kafka_server_$1_$4
-      type: GAUGE
-      labels:
-        listener: "$2"
-        networkProcessor: "$3"
-    - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+-total)
-      name: kafka_server_$1_$4
-      type: COUNTER
-      labels:
-        listener: "$2"
-        networkProcessor: "$3"
-    - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+)
-      name: kafka_server_$1_$4
-      type: GAUGE
-      labels:
-        listener: "$2"
-        networkProcessor: "$3"
-    # Some percent metrics use MeanRate attribute
-    # Ex) kafka.server<type=(KafkaRequestHandlerPool),
-name=(RequestHandlerAvgIdlePercent)><>MeanRate
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>MeanRate
-      name: kafka_$1_$2_$3_percent
-      type: GAUGE
-    # Generic gauges for percents
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>Value
-      name: kafka_$1_$2_$3_percent
-      type: GAUGE
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*, (.+)=(.+)><>Value
-      name: kafka_$1_$2_$3_percent
-      type: GAUGE
-      labels:
-        "$4": "$5"
-    # Generic per-second counters with 0-2 key/value pairs
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+), (.+)=(.+)><>Count
-      name: kafka_$1_$2_$3_total
-      type: COUNTER
-      labels:
-        "$4": "$5"
-        "$6": "$7"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+)><>Count
-      name: kafka_$1_$2_$3_total
-      type: COUNTER
-      labels:
-        "$4": "$5"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*><>Count
-      name: kafka_$1_$2_$3_total
-      type: COUNTER
-    # Generic gauges with 0-2 key/value pairs
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Value
-      name: kafka_$1_$2_$3
-      type: GAUGE
-      labels:
-        "$4": "$5"
-        "$6": "$7"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Value
-      name: kafka_$1_$2_$3
-      type: GAUGE
-      labels:
-        "$4": "$5"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Value
-      name: kafka_$1_$2_$3
-      type: GAUGE
-    # Emulate Prometheus 'Summary' metrics for the exported 'Histogram's.
-    # Note that these are missing the '_sum' metric!
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Count
-      name: kafka_$1_$2_$3_count
-      type: COUNTER
-      labels:
-        "$4": "$5"
-        "$6": "$7"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*), (.+)=(.+)><>(\d+)thPercentile
-      name: kafka_$1_$2_$3
-      type: GAUGE
-      labels:
-        "$4": "$5"
-        "$6": "$7"
-        quantile: "0.$8"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Count
-      name: kafka_$1_$2_$3_count
-      type: COUNTER
-      labels:
-        "$4": "$5"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*)><>(\d+)thPercentile
-      name: kafka_$1_$2_$3
-      type: GAUGE
-      labels:
-        "$4": "$5"
-        quantile: "0.$6"
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Count
-      name: kafka_$1_$2_$3_count
-      type: COUNTER
-    - pattern: kafka.(\w+)<type=(.+), name=(.+)><>(\d+)thPercentile
-      name: kafka_$1_$2_$3
-      type: GAUGE
-      labels:
-        quantile: "0.$4"
-    # KRaft overall related metrics
-    # distinguish between always increasing COUNTER (total and max) and variable GAUGE (all others)
-metrics
-    - pattern: "kafka.server<type=raft-metrics><>(.+-total|.+-max):"
-      name: kafka_server_raftmetrics_$1
-      type: COUNTER
-    - pattern: "kafka.server<type=raft-metrics><>(current-state): (.+)"
-      name: kafka_server_raftmetrics_$1
-      value: 1
-      type: UNTYPED
-      labels:
-        $1: "$2"
-    - pattern: "kafka.server<type=raft-metrics><>(.+):"
-      name: kafka_server_raftmetrics_$1
-      type: GAUGE
-    # KRaft "low level" channels related metrics
-    # distinguish between always increasing COUNTER (total and max) and variable GAUGE (all others)
-metrics
-    - pattern: "kafka.server<type=raft-channel-metrics><>(.+-total|.+-max):"
-      name: kafka_server_raftchannelmetrics_$1
-      type: COUNTER
-    - pattern: "kafka.server<type=raft-channel-metrics><>(.+):"
-      name: kafka_server_raftchannelmetrics_$1
-      type: GAUGE
-    # Broker metrics related to fetching metadata topic records in KRaft mode
-    - pattern: "kafka.server<type=broker-metadata-metrics><>(.+):"
-      name: kafka_server_brokermetadatametrics_$1
-      type: GAUGE
-
-
+2026-04-28 07:31:42,174 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5012ms 297
+2026-04-28 07:32:06,398 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 53ms 1225
+2026-04-28 07:32:06,400 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 53ms 1225
+2026-04-28 07:32:06,419 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 83ms 1225
