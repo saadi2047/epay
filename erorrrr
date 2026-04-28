@@ -1,1 +1,6 @@
 oc get pod dev-console-console-deployment-xxxxx -n dev-kafka -o jsonpath='{.spec.serviceAccountName}'
+
+
+oc adm policy add-cluster-role-to-user cluster-monitoring-view \
+  -z dev-console-console-sa \
+  -n dev-kafka
