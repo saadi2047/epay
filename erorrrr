@@ -1,95 +1,37 @@
-oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-nc -vz dev-kafka-cluster-kafka-bootstrap 9092
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-nc -vz dev-kafka-cluster-kafka-bootstrap 9093
-
-
-oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
-
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9092 && echo OK || echo FAIL"
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9093 && echo OK || echo FAIL"
-
-oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
-env | grep KAFKA_ADVERTISED
-
-
-oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-curl -v dev-kafka-cluster-kafka-bootstrap:9092
-
-
-
-
-
-[osuser@bastion ~]$ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
-    listeners:
-    - name: plain
-      port: 9092
-      tls: false
-      type: internal
-    - name: tls
-      port: 9093
-      tls: true
-      type: internal
-    - name: external
-      port: 9094
---
-  listeners:
-  - addresses:
-    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
-      port: 9092
-    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
-    name: plain
-  - addresses:
-    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
-      port: 9093
-    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9093
-    certificates:
-[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-> nc -vz dev-kafka-cluster-kafka-bootstrap 9092
-Defaulted container "console-api" out of: console-api, console-ui
-time="2026-04-28T07:35:28Z" level=error msg="exec failed: unable to start container process: exec: \"nc\": executable file not found in $PATH"
-command terminated with exit code 255
+Last login: Tue Apr 28 12:30:16 2026 from 10.30.64.125
 [osuser@bastion ~]$
 [osuser@bastion ~]$
-
 [osuser@bastion ~]$
 [osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-> nc -vz dev-kafka-cluster-kafka-bootstrap 9093
+> bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9092 && echo OK || echo FAIL"
 Defaulted container "console-api" out of: console-api, console-ui
-time="2026-04-28T07:35:36Z" level=error msg="exec failed: unable to start container process: exec: \"nc\": executable file not found in $PATH"
-command terminated with exit code 255
-[osuser@bastion ~]$ oc get kafka dev-kafka-cluster -n dev-kafka -o yaml | grep -A10 listeners
-    listeners:
-    - name: plain
-      port: 9092
-      tls: false
-      type: internal
-    - name: tls
-      port: 9093
-      tls: true
-      type: internal
-    - name: external
-      port: 9094
---
-  listeners:
-  - addresses:
-    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
-      port: 9092
-    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092
-    name: plain
-  - addresses:
-    - host: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc
-      port: 9093
-    bootstrapServers: dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9093
-    certificates:
+OK
+[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+> bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9093 && echo OK || echo FAIL"
+Defaulted container "console-api" out of: console-api, console-ui
+OK
 [osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$ oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+> env | grep KAFKA_ADVERTISED
+[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
+> curl -v dev-kafka-cluster-kafka-bootstrap:9092
+Defaulted container "console-api" out of: console-api, console-ui
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 172.30.191.95:9092...
+* Connected to dev-kafka-cluster-kafka-bootstrap (172.30.191.95) port 9092 (#0)
+> GET / HTTP/1.1
+> Host: dev-kafka-cluster-kafka-bootstrap:9092
+> User-Agent: curl/7.76.1
+> Accept: */*
+>
+* Empty reply from server
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* Closing connection 0
+curl: (52) Empty reply from server
+command terminated with exit code 52
+[osuser@bastion ~]$
+
+
 
