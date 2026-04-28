@@ -1,14 +1,32 @@
-oc adm policy add-cluster-role-to-user cluster-monitoring-view \
-  -z dev-console-console-serviceaccount \
-  -n dev-kafka
+Defaulted container "console-api" out of: console-api, console-ui
+INFO exec -a "java" java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -cp "." -jar /deployments/quarkus-run.jar
+INFO running in /deployments
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2026-04-28 06:43:29,515 INFO  [com.git.str.con.api.sup.fac.ConsoleConfigFactory] (main) Loading console configuration from file:/deployments/config/console-config.yaml
+2026-04-28 06:43:29,988 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkas' with unstable version 'v1beta2'
+2026-04-28 06:43:31,557 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkanodepools' with unstable version 'v1beta2'
+2026-04-28 06:43:31,674 WARN  [io.fab.kub.cli.dsl.int.VersionUsageUtils] (main) The client is using resource type 'kafkatopics' with unstable version 'v1beta2'
+2026-04-28 06:43:31,744 INFO  [com.git.str.con.LoggingConfigWatcher] (main) No log config files set to monitor
+2026-04-28 06:43:31,832 INFO  [io.quarkus] (main) console-api 0.8.6.redhat-00002 on JVM (powered by Quarkus 3.20.2.redhat-00004) started in 10.955s. Listening on: http://0.0.0.0:8080
+2026-04-28 06:43:31,834 INFO  [io.quarkus] (main) Profile prod activated.
+2026-04-28 06:43:31,834 INFO  [io.quarkus] (main) Installed features: [cdi, hibernate-validator, kubernetes-client, micrometer, oidc, oidc-client, rest, rest-client, rest-jackson, security, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
+2026-04-28 06:43:56,526 INFO  [com.git.str.con.api.ClientFactory] (vert.x-eventloop-thread-2) Added KafkaContext for cluster dev-kafka/dev-kafka-cluster, id=3aEx1xmUSTWs8xSplBnYtA, global=false
+2026-04-28 06:43:56,773 INFO  [io.qua.htt.access-log] (executor-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 413ms 395
+2026-04-28 06:43:56,773 INFO  [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 413ms 395
+2026-04-28 06:44:25,711 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-2) error=id=a1b42230-1491-47f6-94ff-4a665a708736 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listTopics' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listTopics
 
----------------------------------
-[osuser@bastion ~]$ oc adm policy add-cluster-role-to-user cluster-monitoring-view \
->   -z dev-console-console-serviceaccount \
->   -n dev-kafka
-clusterrole.rbac.authorization.k8s.io/cluster-monitoring-view added: "dev-console-console-serviceaccount"
-[osuser@bastion ~]$
+2026-04-28 06:44:25,711 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=af0cb096-df1b-45d8-8767-29e488870443 title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
 
+2026-04-28 06:44:25,711 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-1) error=id=a0238e88-9f79-47c5-9384-dbd03fbd7d5a title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
 
+2026-04-28 06:44:25,717 WARN  [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-0) error=id=ca57b493-20d2-4036-a3a6-669e2c3527a6 title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: listNodes
 
-oc logs -n dev-kafka deployment/dev-console-console-deployment --since=5m
+2026-04-28 06:44:25,728 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5306ms 198
+2026-04-28 06:44:25,729 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5366ms 203
+2026-04-28 06:44:25,729 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA/consumerGroups?fields%5BconsumerGroups%5D=state HTTP/1.1" 200 5365ms 98
+2026-04-28 06:44:25,729 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2Cmetrics HTTP/1.1" 504 5367ms 198
+2026-04-28 06:44:25,731 INFO  [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA/topics?fields%5Btopics%5D=status&filter%5Bvisibility%5D=eq%2Cexternal&page%5Bsize%5D=1 HTTP/1.1" 504 5368ms 204
+2026-04-28 06:44:25,789 INFO  [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion&page%5Bsize%5D=1000 HTTP/1.1" 200 15ms 395
