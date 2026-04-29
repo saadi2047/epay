@@ -1,8 +1,8 @@
-metricsSources:
-  - name: kafka-metrics
-    type: openshift-monitoring
+oc get configmap prometheus-trusted-ca-bundle \
+-n openshift-monitoring \
+-o jsonpath='{.data.ca-bundle\.crt}' > ca.crt
 
-    tls:
-      trustedCertificates:
-        - secretName: console-prometheus-ca
-          certificate: ca.crt
+
+oc create secret generic console-prometheus-ca \
+--from-file=ca.crt=ca.crt \
+-n dev-kafka
