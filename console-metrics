@@ -1,101 +1,14 @@
-Secret
-S
-prometheus-k8s-token-crmd7
-kubernetes.io/service-account-token	4	
-Sep 7, 2024, 1:14 PM
+[osuser@bastion ~]$ oc get configmap -n openshift-monitoring | grep -i ca
+alertmanager-trusted-ca-bundle                       1      599d
+alertmanager-trusted-ca-bundle-fihe5hvcl9o0n         1      386d
+kube-root-ca.crt                                     1      599d
+kubelet-serving-ca-bundle                            1      599d
+metrics-client-ca                                    1      599d
+openshift-service-ca.crt                             1      599d
+prometheus-trusted-ca-bundle                         1      599d
+prometheus-trusted-ca-bundle-fihe5hvcl9o0n           1      386d
+serving-certs-ca-bundle                              1      599d
+thanos-querier-trusted-ca-bundle-fihe5hvcl9o0n       1      386d
+[osuser@bastion ~]$
 
-Secret
-S
-prometheus-k8s-web-config
-Opaque	1	
-Sep 7, 2024, 1:14 PM
 
-Secret
-S
-prometheus-operator-admission-webhook-dockercfg-7bbvp
-kubernetes.io/dockercfg	1	
-Sep 7, 2024, 1:10 PM
-
-Secret
-S
-prometheus-operator-admission-webhook-tls
-kubernetes.io/tls	2	
-Sep 7, 2024, 1:08 PM
-
-Secret
-S
-prometheus-operator-admission-webhook-token-qkqsj
-kubernetes.io/service-account-token	4	
-Sep 7, 2024, 1:10 PM
-
-Secret
-S
-prometheus-operator-dockercfg-t66ws
-kubernetes.io/dockercfg	1	
-Sep 7, 2024, 1:10 PM
-
-Secret
-S
-prometheus-operator-kube-rbac-proxy-config
-Opaque	1	
-Sep 7, 2024, 1:08 PM
-
-Secret
-S
-prometheus-operator-tls
-kubernetes.io/tls	2	
-Sep 7, 2024, 1:08 PM
-
-Secret
-S
-prometheus-operator-token-qjpth
-kubernetes.io/service-account-token	4	
-Sep 7, 2024, 1:10 PM
-
-Secret
-S
-thanos-querier-dockercfg-w57fh
-kubernetes.io/dockercfg	1	
-Sep 7, 2024, 1:14 PM
-
-Secret
-S
-thanos-querier-grpc-tls-air4frlem654o
-Opaque	3	
-Apr 14, 2026, 1:09 PM
-
-Secret
-S
-thanos-querier-kube-rbac-proxy
-Opaque	1	
-Sep 7, 2024, 1:14 PM
-
-Secret
-S
-thanos-querier-kube-rbac-proxy-metrics
-Opaque	1	
-Sep 7, 2024, 1:14 PM
-
-Secret
-S
-thanos-querier-kube-rbac-proxy-rules
-Opaque	1	
-Sep 7, 2024, 1:14 PM
-
-Secret
-S
-thanos-querier-kube-rbac-proxy-web
-Opaque	1	
-Apr 8, 2025, 2:52 AM
-
-Secret
-S
-thanos-querier-tls
-kubernetes.io/tls	2	
-Sep 7, 2024, 1:09 PM
-
-Secret
-S
-thanos-querier-token-ccmsg
-kubernetes.io/service-account-token	4	
-Sep 7, 2024, 1:14 PM
