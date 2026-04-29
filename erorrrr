@@ -1,37 +1,47 @@
-Last login: Tue Apr 28 12:30:16 2026 from 10.30.64.125
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-> bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9092 && echo OK || echo FAIL"
-Defaulted container "console-api" out of: console-api, console-ui
-OK
-[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-> bash -c "echo > /dev/tcp/dev-kafka-cluster-kafka-bootstrap/9093 && echo OK || echo FAIL"
-Defaulted container "console-api" out of: console-api, console-ui
-OK
-[osuser@bastion ~]$
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
-> env | grep KAFKA_ADVERTISED
-[osuser@bastion ~]$ oc exec -n dev-kafka deploy/dev-console-console-deployment -- \
-> curl -v dev-kafka-cluster-kafka-bootstrap:9092
-Defaulted container "console-api" out of: console-api, console-ui
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 172.30.191.95:9092...
-* Connected to dev-kafka-cluster-kafka-bootstrap (172.30.191.95) port 9092 (#0)
-> GET / HTTP/1.1
-> Host: dev-kafka-cluster-kafka-bootstrap:9092
-> User-Agent: curl/7.76.1
-> Accept: */*
->
-* Empty reply from server
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-* Closing connection 0
-curl: (52) Empty reply from server
-command terminated with exit code 52
-[osuser@bastion ~]$
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: dev-console
+  namespace: dev-kafka
 
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
 
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
 
+      metricsSource: kafka-metrics   # 🔥 KEY FIX
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: default.api.timeout.ms
+            value: "30000"
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+
+  metricsSources:
+    - name: kafka-metrics
+      type: openshift-monitoring
