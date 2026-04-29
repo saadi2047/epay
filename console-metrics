@@ -1,7 +1,37 @@
-oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A3 metricsSource
+[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A3 metricsSource
+    metricsSource: kafka-metrics
+    name: dev-kafka-cluster
+    namespace: dev-kafka
+    producerProperties:
+--
+  metricsSources:
+  - name: kafka-metrics
+    type: openshift-monitoring
+status:
+[osuser@bastion ~]$ oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+deployment.apps/dev-console-console-deployment restarted
+[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i metric
+Found 2 pods, using pod/dev-console-console-deployment-7f98b8bd67-v9jps
+Defaulted container "console-api" out of: console-api, console-ui
+2026-04-29 12:02:37,655 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~]$
+[osuser@bastion ~
 
 
-oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
 
 
-oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i metric
+when webui opened
+
+Cluster metrics
+Used disk space 
+Warning alert:Prometheus can't be reached, or is not configured. Please check your configuration.
+CPU usage 
+Warning alert:Prometheus can't be reached, or is not configured. Please check your configuration.
+Memory usage 
+Warning alert:Prometheus can't be reached, or is not configured. Please check your configuration.
+Topic metrics
+Topics bytes incoming and outgoing 
+Warning alert:Topic metrics are not available for this cluster or no topic activity found. Please check your configuration.
+
