@@ -1,4 +1,3 @@
-    tls:
-      trustedCertificates:
-        - secretName: console-prometheus-ca
-          certificate: ca.crt
+oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A3 metricsSource
+
+oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
