@@ -1,111 +1,20 @@
-😂 thik hai bhai, seedha simple bolte hain — **no overengineering**
+Hi Angelo,
 
----
+Please find the attached kafka.yaml.
 
-# 🎯 REAL PROBLEM (AS IT IS)
+Additionally sharing some context for the issue:
 
-👉 **Kafka Console me metrics nahi dikh rahe**
+Kafka cluster is running fine and brokers are healthy
+Metrics are exposed on port 9404
+Prometheus is scraping metrics successfully
+PodMonitor is configured correctly
+Console ServiceAccount has required RBAC (cluster-monitoring-view)
 
-Bas.
+However:
 
----
+Kafka Console UI loads cluster details
+But metrics are not visible in the UI
 
-# 🧠 ABHI TAK TUMNE KYA PROVE KIYA
-
-* Kafka running ✅
-* Prometheus scraping ho raha hai ✅
-* PodMonitor sahi hai ✅
-* RBAC bhi de diya admin ne ✅
-* Console open ho raha hai (kabhi kabhi) ✅
-
-👉 **Matlab root problem sirf yeh hai:**
-
-```text
-Console Prometheus se metrics read nahi kar paa raha
-```
-
----
-
-# 🎯 RED HAT KO KYA LIKHNA HAI (CLEAN VERSION)
-
-Copy this 👇
-
----
-
-## 📩 Ticket Content (Simple & Correct)
-
-Hi Team,
-
-We are facing an issue where **Kafka Console UI is not showing metrics**.
-
----
-
-### Environment:
-
-* OpenShift cluster
-* Kafka (Strimzi)
-* StreamsHub Kafka Console
-* Prometheus (OpenShift monitoring)
-
----
-
-### Issue:
-
-* Kafka Console UI loads successfully
-* But **no metrics are visible in UI**
-* Graphs and metrics sections are empty
-
----
-
-### What we verified:
-
-* Kafka brokers are running and healthy
-* Metrics endpoint is exposed on brokers (port 9404)
-* PodMonitor is configured correctly
-* Prometheus is scraping Kafka metrics
-* Console ServiceAccount has `cluster-monitoring-view` role
-
----
-
-### Observation:
-
-* Console is able to load cluster details
-* But **fails to fetch/display metrics from Prometheus**
-
----
-
-### Request:
-
-Please help us verify:
-
-* Correct configuration for integrating Kafka Console with OpenShift Prometheus
-* Whether additional authentication or configuration is required
-* Any known issues with metrics visibility in StreamsHub Console
-
----
+Requesting your help to identify if anything is missing in Kafka configuration or integration with Console/Prometheus.
 
 Thanks.
-
----
-
-
-
-# 🧠 HINGLISH
-
-👉 “Bhai metrics nahi dikh rahe console me, sab backend sahi hai, batao kya missing hai”
-
----
-
-# 🚀 IMPORTANT (LAST TIP)
-
-Ticket ke saath attach kar:
-
-```bash
-oc get podmonitor -n dev-kafka -o yaml
-oc get console dev-console -n dev-kafka -o yaml
-oc logs deployment/dev-console-console-deployment -n dev-kafka
-```
-
----
-
-Agar tu chahe toh main aur bhi short bana deta 😄
