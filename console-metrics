@@ -1,50 +1,33 @@
-apiVersion: console.streamshub.github.com/v1alpha1
-kind: Console
-metadata:
-  name: dev-console
-  namespace: dev-kafka
-
-spec:
-  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
-
-  kafkaClusters:
-    - name: dev-kafka-cluster
-      namespace: dev-kafka
-      listener: plain
-      metricsSource: kafka-metrics
-
-      properties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-
-      adminProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-          - name: default.api.timeout.ms
-            value: "30000"
-
-      consumerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-      producerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-  metricsSources:
-    - name: kafka-metrics
-      type: openshift-monitoring
-
-
-
-oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
+at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:383)
+at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:326)
+at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:321)
+at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1360)
+at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.onConsumeCertificate(CertificateMessage.java:1235)
+at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.consume(CertificateMessage.java:1178)
+at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
+at java.base/sun.security.ssl.HandshakeContext.dispatch(HandshakeContext.java:480)
+at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
+at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
+at java.base/java.security.AccessController.doPrivileged(AccessController.java:712)
+at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
+at io.netty.handler.ssl.SslHandler.runDelegatedTasks(SslHandler.java:1695)
+at io.netty.handler.ssl.SslHandler.unwrap(SslHandler.java:1541)
+at io.netty.handler.ssl.SslHandler.decodeJdkCompatible(SslHandler.java:1377)
+... 20 more
+Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:439)
+at java.base/sun.security.validator.PKIXValidator.engineValidate(PKIXValidator.java:306)
+at java.base/sun.security.validator.Validator.validate(Validator.java:264)
+at java.base/sun.security.ssl.X509TrustManagerImpl.checkTrusted(X509TrustManagerImpl.java:285)
+at java.base/sun.security.ssl.X509TrustManagerImpl.checkServerTrusted(X509TrustManagerImpl.java:144)
+at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1338)
+... 31 more
+Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+at java.base/sun.security.provider.certpath.SunCertPathBuilder.build(SunCertPathBuilder.java:148)
+at java.base/sun.security.provider.certpath.SunCertPathBuilder.engineBuild(SunCertPathBuilder.java:129)
+at java.base/java.security.cert.CertPathBuilder.build(CertPathBuilder.java:297)
+at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:434)
+... 36 more
+2026-04-30 06:08:17,589 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 65ms 1225
