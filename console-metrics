@@ -1,84 +1,3 @@
-[osuser@bastion ~]$ oc get secrets -n dev-kafka
-NAME                                                  TYPE                                  DATA   AGE
-builder-dockercfg-njxsc                               kubernetes.io/dockercfg               1      548d
-builder-token-brzh4                                   kubernetes.io/service-account-token   4      548d
-console-prometheus-ca                                 Opaque                                1      17h
-default-dockercfg-hc87l                               kubernetes.io/dockercfg               1      548d
-default-token-wrlxc                                   kubernetes.io/service-account-token   4      548d
-deployer-dockercfg-7zscq                              kubernetes.io/dockercfg               1      548d
-deployer-token-5bb5z                                  kubernetes.io/service-account-token   4      548d
-dev-console-console-secret                            Opaque                                2      2d19h
-dev-console-console-serviceaccount-dockercfg-lzzvg    kubernetes.io/dockercfg               1      8d
-dev-kafka-cluster-broker-0                            Opaque                                2      127d
-dev-kafka-cluster-broker-1                            Opaque                                2      127d
-dev-kafka-cluster-broker-2                            Opaque                                2      127d
-dev-kafka-cluster-clients-ca                          Opaque                                1      169d
-dev-kafka-cluster-clients-ca-cert                     Opaque                                3      169d
-dev-kafka-cluster-cluster-ca                          Opaque                                1      169d
-dev-kafka-cluster-cluster-ca-cert                     Opaque                                3      169d
-dev-kafka-cluster-cluster-operator-certs              Opaque                                2      169d
-dev-kafka-cluster-controller-3                        Opaque                                2      127d
-dev-kafka-cluster-controller-4                        Opaque                                2      127d
-dev-kafka-cluster-controller-5                        Opaque                                2      127d
-dev-kafka-cluster-cruise-control-api                  Opaque                                3      169d
-dev-kafka-cluster-cruise-control-certs                Opaque                                2      169d
-dev-kafka-cluster-cruise-control-dockercfg-2zglq      kubernetes.io/dockercfg               1      169d
-dev-kafka-cluster-entity-operator-dockercfg-bvktj     kubernetes.io/dockercfg               1      169d
-dev-kafka-cluster-entity-topic-operator-cc-api        Opaque                                2      169d
-dev-kafka-cluster-entity-topic-operator-certs         Opaque                                2      169d
-dev-kafka-cluster-entity-user-operator-certs          Opaque                                2      169d
-dev-kafka-cluster-kafka-dockercfg-b49xq               kubernetes.io/dockercfg               1      169d
-dev-kafka-connect-mq-test-connect-dockercfg-j5l2b     kubernetes.io/dockercfg               1      98d
-dev-kafka-mirror-maker-mirrormaker2-dockercfg-qm7bc   kubernetes.io/dockercfg               1      119d
-epay-user                                             Opaque                                2      169d
-grafana-serviceaccount-dockercfg-7kt55                kubernetes.io/dockercfg               1      432d
-grafana-serviceaccount-token-4rnfh                    kubernetes.io/service-account-token   4      432d
-microservices-dev-pull-secret                         kubernetes.io/dockerconfigjson        1      41d
-[osuser@bastion ~]$ oc edit dev-console-console-secret -n dev-kafka
-error: the server doesn't have a resource type "dev-console-console-secret"
-[osuser@bastion ~]$ oc edit secret dev-console-console-secret -n dev-kafka
-# Please edit the object below. Lines beginning with a '#' will be ignored,
-# and an empty file will abort the edit. If an error occurs while saving this file will be
-# reopened with the relevant failures.
-#
-apiVersion: v1
-data:
-  NEXTAUTH_SECRET: S1E9PUl3PT1HUT09Ync9PVFnPT1aZz09anc9PU53PT0=
-  console-config.yaml: LS0tCmt1YmVybmV0ZXM6CiAgZW5hYmxlZDogdHJ1ZQpzZWN1cml0eToKICBzdWJqZWN0czogW10KICByb2xlczogW10KICBhdWRpdDogW10KICBvaWRjOiBudWxsCm1ldHJpY3NTb3VyY2VzOgotIG5hbWU6ICJrYWZrYS1tZXRyaWNzIgogIHR5cGU6ICJvcGVuc2hpZnQtbW9uaXRvcmluZyIKICB1cmw6ICJodHRwczovL3RoYW5vcy1xdWVyaWVyLW9wZW5zaGlmdC1tb25pdG9yaW5nLmFwcHMuZGV2LnNiaWVwYXkuc2JpIgpzY2hlbWFSZWdpc3RyaWVzOiBbXQprYWZrYToKICBjbHVzdGVyczoKICAtIG5hbWU6ICJkZXYta2Fma2EtY2x1c3RlciIKICAgIG5hbWVzcGFjZTogImRldi1rYWZrYSIKICAgIGxpc3RlbmVyOiAicGxhaW4iCiAgICBzZWN1cml0eToKICAgICAgc3ViamVjdHM6IFtdCiAgICAgIHJvbGVzOiBbXQogICAgICBhdWRpdDogW10KICAgIG1ldHJpY3NTb3VyY2U6ICJrYWZrYS1tZXRyaWNzIgogICAgcHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIGJvb3RzdHJhcC5zZXJ2ZXJzOiAiZGV2LWthZmthLWNsdXN0ZXIta2Fma2EtYm9vdHN0cmFwLmRldi1rYWZrYS5zdmM6OTA5MiIKICAgIGFkbWluUHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIHJlcXVlc3QudGltZW91dC5tczogIjMwMDAwIgogICAgICBkZWZhdWx0LmFwaS50aW1lb3V0Lm1zOiAiMzAwMDAiCiAgICBjb25zdW1lclByb3BlcnRpZXM6CiAgICAgIHNlY3VyaXR5LnByb3RvY29sOiAiUExBSU5URVhUIgogICAgICByZXF1ZXN0LnRpbWVvdXQubXM6ICIzMDAwMCIKICAgIHByb2R1Y2VyUHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIHJlcXVlc3QudGltZW91dC5tczogIjMwMDAwIgo=
-kind: Secret
-metadata:
-  annotations:
-    javaoperatorsdk.io/previous: 9df0d2fa-9f32-4d9b-bc0c-7300e7a7c5fe,727767126
-  creationTimestamp: "2026-04-27T10:36:21Z"
-  labels:
-    app.kubernetes.io/managed-by: streamshub-console-operator
-    app.kubernetes.io/name: console
-  name: dev-console-console-secret
-  namespace: dev-kafka
-  ownerReferences:
-  - apiVersion: console.streamshub.github.com/v1alpha1
-    kind: Console
-    name: dev-console
-    uid: 7c866b04-fd85-40f1-a2b9-0b71de4b2ce3
-  resourceVersion: "731630759"
-  uid: 2f3a910f-d1fb-4159-a322-69f81564e176
-type: Opaque
-~
-~
-~
-
-
-
--------------------------------------------------------------
-deployment
-dev
-charts
-epay_common
-templates
-kafka
-kafka-console.yaml
-
-
 apiVersion: console.streamshub.github.com/v1alpha1
 kind: Console
 metadata:
@@ -92,7 +11,6 @@ spec:
     - name: dev-kafka-cluster
       namespace: dev-kafka
       listener: plain
-
       metricsSource: kafka-metrics
 
       properties:
@@ -127,7 +45,6 @@ spec:
     - name: kafka-metrics
       type: openshift-monitoring
 
-      tls:
-        trustedCertificates:
-          - secretName: console-prometheus-ca
-            certificate: ca.crt
+
+
+oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
