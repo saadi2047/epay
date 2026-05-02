@@ -1,69 +1,92 @@
-# 1. Find what URL the console is actually trying to hit
-oc get secret dev-console-console-secret -n dev-kafka \
-  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep -A5 metrics
-
-# 2. Get the OpenShift CA certificate
-oc get configmap kube-root-ca.crt -n dev-kafka -o yaml | grep -c "BEGIN CERTIFICATE"
-
-# 3. Check if OCP CA configmap exists
-oc get configmap openshift-service-ca.crt -n dev-kafka
-
-
-
-apiVersion: console.streamshub.github.com/v1alpha1
-kind: Console
+[osuser@bastion ~]$ oc get networkpolicy dev-kafka-cluster-network-policy-kafka -n dev-kafka -o yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
 metadata:
-  name: dev-console
+  creationTimestamp: "2025-11-11T09:58:39Z"
+  generation: 4
+  labels:
+    app.kubernetes.io/instance: dev-kafka-cluster
+    app.kubernetes.io/managed-by: strimzi-cluster-operator
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: strimzi-dev-kafka-cluster
+    environment: dev
+    strimzi.io/cluster: dev-kafka-cluster
+    strimzi.io/component-type: kafka
+    strimzi.io/kind: Kafka
+    strimzi.io/name: dev-kafka-cluster-kafka
+  name: dev-kafka-cluster-network-policy-kafka
   namespace: dev-kafka
-
+  ownerReferences:
+  - apiVersion: kafka.strimzi.io/v1beta2
+    blockOwnerDeletion: false
+    controller: false
+    kind: Kafka
+    name: dev-kafka-cluster
+    uid: ab8cf8f2-7a71-4b49-8c7e-5b469a8dec8a
+  resourceVersion: "718084438"
+  uid: 8375dca5-3049-44a5-be73-ac4ed5c9d82a
 spec:
-  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
-
-  metricsSources:
-    - name: kafka-metrics
-      type: openshift-monitoring
-      trustStore:
-        type: PEM
-        content:
-          valueFrom:
-            configMapKeyRef:
-              name: openshift-service-ca.crt
-              key: service-ca.crt
-
-  kafkaClusters:
-    - name: dev-kafka-cluster
-      namespace: dev-kafka
-      listener: plain
-      metricsSource: kafka-metrics
-
-      properties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-
-      adminProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-          - name: default.api.timeout.ms
-            value: "30000"
-
-      consumerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-      producerProperties:
-        values:
-          - name: security.protocol
-            value: PLAINTEXT
-          - name: request.timeout.ms
-            value: "30000"
-
-
-
-oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i "metric\|ssl\|error"
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          strimzi.io/cluster: dev-kafka-cluster
+          strimzi.io/kind: Kafka
+          strimzi.io/name: dev-kafka-cluster-kafka
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          strimzi.io/kind: cluster-operator
+    ports:
+    - port: 9090
+      protocol: TCP
+  - from:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          strimzi.io/kind: cluster-operator
+    - podSelector:
+        matchLabels:
+          strimzi.io/cluster: dev-kafka-cluster
+          strimzi.io/kind: Kafka
+          strimzi.io/name: dev-kafka-cluster-kafka
+    - podSelector:
+        matchLabels:
+          strimzi.io/name: dev-kafka-cluster-entity-operator
+    - podSelector:
+        matchLabels:
+          strimzi.io/name: dev-kafka-cluster-kafka-exporter
+    - podSelector:
+        matchLabels:
+          strimzi.io/name: dev-kafka-cluster-cruise-control
+    ports:
+    - port: 9091
+      protocol: TCP
+  - from:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          strimzi.io/kind: cluster-operator
+    ports:
+    - port: 8443
+      protocol: TCP
+  - ports:
+    - port: 9092
+      protocol: TCP
+  - ports:
+    - port: 9093
+      protocol: TCP
+  - ports:
+    - port: 9094
+      protocol: TCP
+  - ports:
+    - port: 9404
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      strimzi.io/cluster: dev-kafka-cluster
+      strimzi.io/kind: Kafka
+      strimzi.io/name: dev-kafka-cluster-kafka
+  policyTypes:
+  - Ingress
+[osuser@bastion ~]$
