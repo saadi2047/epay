@@ -1,35 +1,101 @@
+Good, ab tu **right place pe aa gaya hai** 👍
+Ye jo tu dekh raha hai — ye **base64 encoded config hai**, isliye direct edit karna galat approach hoga.
 
-# Please edit the object below. Lines beginning with a '#' will be ignored,
-# and an empty file will abort the edit. If an error occurs while saving this file will be
-# reopened with the relevant failures.
-#
-apiVersion: v1
-data:
-  NEXTAUTH_SECRET: S1E9PUl3PT1HUT09Ync9PVFnPT1aZz09anc9PU53PT0=
-  console-config.yaml: LS0tCmt1YmVybmV0ZXM6CiAgZW5hYmxlZDogdHJ1ZQpzZWN1cml0eToKICBzdWJqZWN0czogW10KICByb2xlczogW10KICBhdWRpdDogW10KICBvaWRjOiBudWxsCm1ldHJpY3NTb3VyY2VzOgotIG5hbWU6ICJrYWZrYS1tZXRyaWNzIgogIHR5cGU6ICJvcGVuc2hpZnQtbW9uaXRvcmluZyIKICB1cmw6ICJodHRwczovL3RoYW5vcy1xdWVyaWVyLW9wZW5zaGlmdC1tb25pdG9yaW5nLmFwcHMuZGV2LnNiaWVwYXkuc2JpIgpzY2hlbWFSZWdpc3RyaWVzOiBbXQprYWZrYToKICBjbHVzdGVyczoKICAtIG5hbWU6ICJkZXYta2Fma2EtY2x1c3RlciIKICAgIG5hbWVzcGFjZTogImRldi1rYWZrYSIKICAgIGxpc3RlbmVyOiAicGxhaW4iCiAgICBzZWN1cml0eToKICAgICAgc3ViamVjdHM6IFtdCiAgICAgIHJvbGVzOiBbXQogICAgICBhdWRpdDogW10KICAgIG1ldHJpY3NTb3VyY2U6ICJrYWZrYS1tZXRyaWNzIgogICAgcHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIGJvb3RzdHJhcC5zZXJ2ZXJzOiAiZGV2LWthZmthLWNsdXN0ZXIta2Fma2EtYm9vdHN0cmFwLmRldi1rYWZrYS5zdmM6OTA5MiIKICAgIGFkbWluUHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIHJlcXVlc3QudGltZW91dC5tczogIjMwMDAwIgogICAgICBkZWZhdWx0LmFwaS50aW1lb3V0Lm1zOiAiMzAwMDAiCiAgICBjb25zdW1lclByb3BlcnRpZXM6CiAgICAgIHNlY3VyaXR5LnByb3RvY29sOiAiUExBSU5URVhUIgogICAgICByZXF1ZXN0LnRpbWVvdXQubXM6ICIzMDAwMCIKICAgIHByb2R1Y2VyUHJvcGVydGllczoKICAgICAgc2VjdXJpdHkucHJvdG9jb2w6ICJQTEFJTlRFWFQiCiAgICAgIHJlcXVlc3QudGltZW91dC5tczogIjMwMDAwIgo=
-kind: Secret
-metadata:
-  annotations:
-    javaoperatorsdk.io/previous: 9df0d2fa-9f32-4d9b-bc0c-7300e7a7c5fe,727767126
-  creationTimestamp: "2026-04-27T10:36:21Z"
-  labels:
-    app.kubernetes.io/managed-by: streamshub-console-operator
-    app.kubernetes.io/name: console
-  name: dev-console-console-secret
-  namespace: dev-kafka
-  ownerReferences:
-  - apiVersion: console.streamshub.github.com/v1alpha1
-    kind: Console
-    name: dev-console
-    uid: 7c866b04-fd85-40f1-a2b9-0b71de4b2ce3
-  resourceVersion: "731630759"
-  uid: 2f3a910f-d1fb-4159-a322-69f81564e176
-type: Opaque
-~
-~
-~
-~
-~
+👉 Seedha bolu: **Isko manually edit mat kar** — galat save hua toh console toot jayega.
 
+---
 
+# 🚨 PROBLEM AGAIN (CLEAR)
+
+Inside secret (decoded form):
+
+```yaml
+url: "https://thanos-querier-openshift-monitoring.apps..."
+```
+
+👉 Ye hi SSL error ka root cause hai
+👉 Isko **HTTP internal service pe shift karna hai**
+
+---
+
+# ✅ SAFE & CORRECT WAY (STEP-BY-STEP)
+
+## 🔥 STEP 1: Decode current config
+
+```bash
+oc get secret dev-console-console-secret -n dev-kafka \
+-o jsonpath='{.data.console-config\.yaml}' | base64 -d > console-config.yaml
+```
+
+---
+
+## 🔥 STEP 2: Edit file
+
+```bash
+vi console-config.yaml
+```
+
+---
+
+### ✏️ CHANGE THIS
+
+#### ❌ OLD
+
+```yaml
+url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
+```
+
+#### ✅ NEW (FINAL FIX)
+
+```yaml
+url: "http://thanos-querier.openshift-monitoring.svc:9091"
+```
+
+---
+
+## 🔥 STEP 3: Encode back
+
+```bash
+cat console-config.yaml | base64 -w 0 > encoded.txt
+```
+
+---
+
+## 🔥 STEP 4: Patch secret (SAFE METHOD)
+
+```bash
+oc patch secret dev-console-console-secret -n dev-kafka \
+--type='json' \
+-p='[{"op":"replace","path":"/data/console-config.yaml","value":"'$(cat encoded.txt)'"}]'
+```
+
+---
+
+## 🔥 STEP 5: Restart console
+
+```bash
+oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+```
+
+---
+
+# ✅ VERIFY
+
+```bash
+oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i thanos
+```
+
+👉 You should see:
+
+```
+http://thanos-querier.openshift-monitoring.svc:9091
+```
+
+❌ NOT:
+
+```
+https://thanos-querier-openshift-monitoring
+```
+
+---
 
