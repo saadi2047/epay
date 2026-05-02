@@ -1,0 +1,234 @@
+Good—now we’re talking about the part that actually improves performance and stability 👍
+Before suggesting any tuning, I need **full visibility of your current cluster + workload pattern**. Otherwise tuning becomes guesswork.
+
+I’ll give you a **complete checklist + exact commands from bastion**.
+You collect this once → I’ll give you **precise tuning (broker, connect, topics, JVM, etc.)**
+
+---
+
+# 📊 **1. Kafka Cluster Details (MANDATORY)**
+
+### Run from bastion:
+
+```bash
+oc get kafka dev-kafka-cluster -n dev-kafka -o yaml > kafka-cluster.yaml
+```
+
+```bash
+oc get kafkanodepools -n dev-kafka -o yaml > kafkanodepools.yaml
+```
+
+👉 I need:
+
+* listeners
+* config section
+* metricsConfig
+* storage
+* replicas
+
+---
+
+# 🧠 **2. Broker Runtime Details**
+
+```bash
+oc describe pod dev-kafka-cluster-broker-0 -n dev-kafka > broker-describe.txt
+```
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- env > broker-env.txt
+```
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- jcmd 1 VM.flags > jvm-flags.txt
+```
+
+👉 I’ll check:
+
+* JVM heap
+* GC config
+* memory limits vs heap
+* env tuning
+
+---
+
+# 📈 **3. Kafka Metrics (VERY IMPORTANT)**
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+curl -s localhost:9404/metrics > broker-metrics.txt
+```
+
+👉 This tells:
+
+* request rate
+* network usage
+* replication lag
+* disk usage
+
+---
+
+# 📦 **4. Topic Configuration**
+
+```bash
+oc get kafkatopics -n dev-kafka -o yaml > topics.yaml
+```
+
+👉 I’ll check:
+
+* partitions
+* replication factor
+* retention
+* cleanup policy
+
+---
+
+# 👥 **5. Consumer Groups**
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+/opt/kafka/bin/kafka-consumer-groups.sh \
+--bootstrap-server localhost:9092 \
+--all-groups --describe > consumer-groups.txt
+```
+
+👉 I’ll analyze:
+
+* lag
+* slow consumers
+* imbalance
+
+---
+
+# 🔄 **6. Kafka Connect (CRITICAL in your case)**
+
+You already had restart issues — this is VERY important.
+
+```bash
+oc get kafkaconnect -n dev-kafka -o yaml > connect.yaml
+```
+
+```bash
+oc get pods -n dev-kafka | grep connect > connect-pods.txt
+```
+
+```bash
+oc logs -n dev-kafka <one-connect-pod-name> > connect-logs.txt
+```
+
+👉 I’ll check:
+
+* task failures
+* rebalance loops
+* resource bottlenecks
+
+---
+
+# ⚙️ **7. OpenShift Resource Usage**
+
+```bash
+oc adm top pods -n dev-kafka > pod-usage.txt
+```
+
+```bash
+oc adm top nodes > node-usage.txt
+```
+
+👉 Needed for:
+
+* CPU throttling
+* memory pressure
+
+---
+
+# 💾 **8. Storage Details**
+
+```bash
+oc get pvc -n dev-kafka > pvc.txt
+```
+
+```bash
+oc describe pvc -n dev-kafka > pvc-describe.txt
+```
+
+👉 I’ll check:
+
+* disk size
+* storage class
+* IOPS capability
+
+---
+
+# 🌐 **9. Networking / Throughput**
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+ss -s > network.txt
+```
+
+---
+
+# 📊 **10. Current Issues Snapshot (IMPORTANT)**
+
+You tell me:
+
+* Expected TPS (messages/sec)?
+* Avg message size?
+* Peak load time?
+* Current issues:
+
+  * lag?
+  * slow processing?
+  * restarts?
+  * latency?
+
+---
+
+# 📁 **11. GitLab Deployment YAMLs (YOU ALREADY SAID)**
+
+👉 Share zip including:
+
+* kafka-cluster.yaml
+* kafka-console.yaml
+* kafka-connect.yaml
+* values.yaml
+
+---
+
+# 🎯 **What I’ll Give After This**
+
+Once you share:
+
+👉 I will give **exact tuning (no generic bakwas)**:
+
+* Broker tuning (threads, IO, network)
+* JVM tuning (heap, GC)
+* Topic optimization (partitions, RF)
+* Connect stability fixes
+* Throughput optimization
+* Storage tuning
+* Cruise Control suggestions
+
+---
+
+# ⚠️ Important
+
+Don’t skip anything—especially:
+
+* metrics
+* consumer groups
+* connect logs
+
+👉 Your previous issue already showed:
+**problem was not config… it was integration + SSL + monitoring**
+
+Same thing here—root cause comes from data.
+
+---
+
+## 🚀 Next Step
+
+👉 Run above commands
+👉 Zip everything
+👉 Share here
+
+Then I’ll do **deep analysis like production Kafka engineer** and give you **exact tuning plan**.
