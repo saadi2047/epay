@@ -1,3 +1,16 @@
-Topic metrics
-Topics bytes incoming and outgoing 
-Warning alert:Topic metrics are not available for this cluster or no topic activity found. Please check your configuration.
+oc get configmap kafka-metrics -n dev-kafka -o jsonpath='{.data}'
+
+
+kafka-metrics-config.yaml: |-
+{{ .Files.Get "files/kafka-metrics.yaml" | indent 4 }}
+
+
+
+# 1. Confirm ConfigMap now has content
+oc get configmap kafka-metrics -n dev-kafka -o jsonpath='{.data.kafka-metrics-config\.yaml}' | head -5
+
+# 2. Confirm brokers are now exposing topic-level metrics
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+  curl -s localhost:9404/metrics | grep "BrokerTopicMetrics" | head -5
+
+
