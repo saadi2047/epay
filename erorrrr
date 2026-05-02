@@ -1,114 +1,69 @@
-[osuser@bastion ~]$ oc get consoles.console.streamshub.github.com dev-console -n dev-kafka -o yaml | grep -A3 metricsSource
-    metricsSource: kafka-metrics
-    name: dev-kafka-cluster
-    namespace: dev-kafka
-    producerProperties:
---
-  metricsSources:
-  - name: kafka-metrics
-    type: openshift-monitoring
-status:
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i metric
-Defaulted container "console-api" out of: console-api, console-ui
-2026-05-02 06:55:26,050 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:27,478 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:37,532 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:40,879 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:47,475 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:57,566 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-2026-05-02 06:55:58,423 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-[osuser@bastion ~]$
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep SSL
-Defaulted container "console-api" out of: console-api, console-ui
-2026-05-02 06:55:26,050 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:27,478 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:37,532 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:40,879 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:47,475 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:57,566 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:55:58,423 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:56:05,545 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:56:07,457 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-2) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:56:28,627 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-2026-05-02 06:56:28,954 WARN  [com.git.str.con.api.ser.MetricsService] (ForkJoinPool.commonPool-worker-1) Failed to retrieve Kafka cluster metrics: jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: Failed to create SSL connection
-Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-        at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)
-        at java.base/sun.security.ssl.SSLHandshake.consume(SSLHandshake.java:396)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1277)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask$DelegatedAction.run(SSLEngineImpl.java:1264)
-        at java.base/sun.security.ssl.SSLEngineImpl$DelegatedTask.run(SSLEngineImpl.java:1209)
-[osuser@bastion ~]$ oc logs -n dev-kafka deployment/dev-console-console-deployment | grep -i thanos
-Defaulted container "console-api" out of: console-api, console-ui
-[osuser@bastion ~]$
+# 1. Find what URL the console is actually trying to hit
+oc get secret dev-console-console-secret -n dev-kafka \
+  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep -A5 metrics
 
+# 2. Get the OpenShift CA certificate
+oc get configmap kube-root-ca.crt -n dev-kafka -o yaml | grep -c "BEGIN CERTIFICATE"
+
+# 3. Check if OCP CA configmap exists
+oc get configmap openshift-service-ca.crt -n dev-kafka
+
+
+
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: dev-console
+  namespace: dev-kafka
+
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+
+  metricsSources:
+    - name: kafka-metrics
+      type: openshift-monitoring
+      trustStore:
+        type: PEM
+        content:
+          valueFrom:
+            configMapKeyRef:
+              name: openshift-service-ca.crt
+              key: service-ca.crt
+
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+      metricsSource: kafka-metrics
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: default.api.timeout.ms
+            value: "30000"
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+
+
+
+oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i "metric\|ssl\|error"
