@@ -1,20 +1,86 @@
-[osuser@bastion ~]$ oc get pods -n dev-kafka | grep broker
-dev-kafka-cluster-broker-0                           1/1     Running   0                  2d15h
-dev-kafka-cluster-broker-1                           1/1     Running   5 (2d7h ago)       9d
-dev-kafka-cluster-broker-2                           1/1     Running   1 (3d9h ago)       9d
-[osuser@bastion ~]$ oc get pods -n dev-kafka -o wide | grep broker
-dev-kafka-cluster-broker-0                           1/1     Running   0                  2d15h   172.16.9.234    worker1.dev.sbiepay.sbi   <none>           <none>
-dev-kafka-cluster-broker-1                           1/1     Running   5 (2d7h ago)       9d      172.16.8.138    worker1.dev.sbiepay.sbi   <none>           <none>
-dev-kafka-cluster-broker-2                           1/1     Running   1 (3d9h ago)       9d      172.16.8.137    worker1.dev.sbiepay.sbi   <none>           <none>
-[osuser@bastion ~]$ oc get pods -n dev-kafka | grep connect
-dev-kafka-connect-mq-test-connect-0                  1/1     Running   983 (5h39m ago)    44d
-dev-kafka-connect-mq-test-connect-1                  1/1     Running   4495 (7h43m ago)   99d
-dev-kafka-connect-mq-test-connect-2                  1/1     Running   851 (5h39m ago)    44d
-[osuser@bastion ~]$ oc get networkpolicy -n dev-kafka
-NAME                                              POD-SELECTOR                                                                                                                      AGE
-dev-kafka-cluster-entity-operator                 strimzi.io/cluster=dev-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-entity-operator                      171d
-dev-kafka-cluster-network-policy-cruise-control   strimzi.io/cluster=dev-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-cruise-control                       171d
-dev-kafka-cluster-network-policy-kafka            strimzi.io/cluster=dev-kafka-cluster,strimzi.io/kind=Kafka,strimzi.io/name=dev-kafka-cluster-kafka                                171d
-dev-kafka-connect-mq-test-connect                 strimzi.io/cluster=dev-kafka-connect-mq-test,strimzi.io/kind=KafkaConnect,strimzi.io/name=dev-kafka-connect-mq-test-connect       101d
-dev-kafka-mirror-maker-mirrormaker2               strimzi.io/cluster=dev-kafka-mirror-maker,strimzi.io/kind=KafkaMirrorMaker2,strimzi.io/name=dev-kafka-mirror-maker-mirrormaker2   121d
-[osuser@bastion ~]$
+oc get networkpolicy dev-kafka-cluster-network-policy-kafka -n dev-kafka -o yaml
+
+
+
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: dev-console
+  namespace: dev-kafka
+
+spec:
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+
+  metricsSources:
+    - name: kafka-metrics
+      type: openshift-monitoring
+      trustStore:
+        type: PEM
+        content:
+          valueFrom:
+            configMapKeyRef:
+              name: kube-root-ca.crt
+              key: ca.crt
+
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+      metricsSource: kafka-metrics
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: default.api.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+
+
+cat /path/to/templates/network-policies/kafka.yaml
+
