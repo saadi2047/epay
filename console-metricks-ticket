@@ -1,38 +1,33 @@
 Hi Team,
 
-The Kafka Console (Streamshub) setup for the **dev-kafka** environment has been successfully implemented and validated.
+The Kafka Console for the **dev-kafka** environment is now fully operational and available for monitoring and validation.
 
-As part of this activity, we have:
+🔗 **Console URL:**
+http://dev-kafkaconsole.apps.dev.sbiepay.sbi
 
-* Configured Kafka Console with OpenShift Monitoring integration
-* Enabled Kafka metrics using JMX Prometheus exporter
-* Integrated PodMonitor for Prometheus scraping
-* Resolved metrics visibility issues related to SSL and configuration
+You can use this console to:
 
-The detailed **Standard Operating Procedure (SOP)** covering:
+* Monitor **Kafka cluster health** (CPU, Memory, Disk usage)
+* View **topic-level metrics** (incoming/outgoing throughput)
+* Check **consumer group details** (lag, offsets)
+* Browse **topics, partitions, and messages**
+* Validate application-level Kafka integrations
 
-* Implementation steps
-* Configuration details (YAMLs)
-* Validation steps
-* Troubleshooting scenarios
-* Console UI screenshots
+**Important Notes:**
 
-is attached for your reference.
+* This is a **read-only monitoring interface**
+* Access is restricted within the OpenShift network
+* Metrics are near real-time and depend on application activity
 
-📎 Please refer to the attached document: 
+We request all application teams to:
 
-Key highlights:
+* Validate their topics and consumer groups
+* Monitor message flow during testing
+* Report any discrepancies or issues
 
-* Kafka cluster metrics (CPU, Memory, Disk) are now visible in Console UI
-* Topic-level metrics (throughput) are working as expected
-* Consumer group, partition, and message-level insights are available
+For detailed usage and troubleshooting, please refer to the shared SOP.
 
-Kindly review the document and let us know if any changes or additional details are required.
-
-Next steps:
-
-* Proceed with fine-tuning of the dev-kafka cluster
-* Extend the same setup to higher environments (SIT/UAT/Pre-Prod)
+If you face any issues accessing the console or observing metrics, please reach out to the DevOps/Kafka team.
 
 Thanks & Regards,
 Saadi M Muzzammil
