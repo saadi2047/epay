@@ -1,26 +1,29 @@
-2026-05-02 07:14:40,570 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 58ms 1225
-2026-05-02 07:14:41,981 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 66ms 1225
-2026-05-02 07:14:51,991 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 73ms 1225
-2026-05-02 07:15:01,920 INFO [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 10ms 395
-2026-05-02 07:15:02,001 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 86ms 1225
-2026-05-02 07:15:05,589 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 144ms 1225
-2026-05-02 07:15:05,671 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 135ms 1225
-2026-05-02 07:15:12,033 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 114ms 1225
-2026-05-02 07:15:22,096 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 86ms 1225
-2026-05-02 07:15:37,392 WARN [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=1ba63998-273c-4a6a-9b28-b78af13f67d3 title='Timed out waiting for backend service' detail='Timed out waiting to send the call. Call: describeMetadataQuorum' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: describeMetadataQuorum
-2026-05-02 07:15:37,395 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5010ms 211
-2026-05-02 07:15:38,225 WARN [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-2) error=id=afb70deb-4b7a-4b34-b70f-92eaaac75af7 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-05-02 07:15:38,227 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5008ms 203
-2026-05-02 07:15:43,300 WARN [com.git.str.con.api.err.ser.AbstractServerExceptionHandler] (vert.x-eventloop-thread-3) error=id=3ee13163-b785-4b74-9df9-3af2d128de29 title='Timed out waiting for backend service' detail='Timed out waiting for a node assignment. Call: listNodes' source=null: org.apache.kafka.common.errors.TimeoutException: Timed out waiting for a node assignment. Call: listNodes
-2026-05-02 07:15:43,302 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 504 5008ms 203
-2026-05-02 07:15:46,842 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 4416ms 1225
-2026-05-02 07:15:52,515 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 120ms 1225
-2026-05-02 07:16:02,433 INFO [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
-2026-05-02 07:16:02,556 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 131ms 1225
-2026-05-02 07:16:05,692 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 200ms 1225
-2026-05-02 07:16:05,741 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-2) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 163ms 1225
-2026-05-02 07:16:12,487 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-4) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 83ms 1225
-2026-05-02 07:16:22,547 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 120ms 1225
-2026-05-02 07:16:33,384 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-3) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 138ms 1225
-2026-05-02 07:16:38,313 INFO [io.qua.htt.access-log] (vert.x-eventloop-thread-0) ANONYMOUS 127.0.0.1 - "GET /api/kafkas/3aEx1xmUSTWs8xSplBnYtA?fields%5Bkafkas%5D=name%2Cnamespace%2CcreationTimestamp%2Cstatus%2CkafkaVersion%2Cnodes%2Clisteners%2Cconditions%2CnodePools%2CcruiseControlEnabled HTTP/1.1" 200 76ms 1225
-2026-05-02 07:17:10,957 INFO [io.qua.htt.access-log] (executor-thread-1) ANONYMOUS 127.0.0.1 - "GET /api/kafkas?fields%5Bkafkas%5D=name%2Cnamespace%2CkafkaVersion HTTP/1.1" 200 11ms 395
+# 1. Check if brokers are restarting / have recent restarts
+oc get pods -n dev-kafka | grep broker
+
+# 2. Check broker restart count and uptime
+oc get pods -n dev-kafka -o wide | grep broker
+
+# 3. Check if Kafka Connect is crashing (it was showing high restarts earlier)
+oc get pods -n dev-kafka | grep connect
+
+# 4. Check if there are any network policies blocking console → broker traffic
+oc get networkpolicy -n dev-kafka
+
+
+
+
+adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: default.api.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
