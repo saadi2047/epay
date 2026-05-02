@@ -1,10 +1,3 @@
-# Force operator to regenerate the secret from the new CR
-oc delete secret dev-console-console-secret -n dev-kafka
-
-# Wait 30 seconds, then verify the secret now has NO url field and HAS trustStore
-oc get secret dev-console-console-secret -n dev-kafka \
-  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep -A8 metrics
-
-
-
-oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i "metric\|ssl"
+Topic metrics
+Topics bytes incoming and outgoing 
+Warning alert:Topic metrics are not available for this cluster or no topic activity found. Please check your configuration.
