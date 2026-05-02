@@ -1,26 +1,10 @@
-[osuser@bastion ~]$ oc get secret dev-console-console-secret -n dev-kafka \
->   -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep -A5 metrics
-metricsSources:
-- name: "kafka-metrics"
-  type: "openshift-monitoring"
-  url: "https://thanos-querier-openshift-monitoring.apps.dev.sbiepay.sbi"
-schemaRegistries: []
-kafka:
-  clusters:
---
-    metricsSource: "kafka-metrics"
-    properties:
-      security.protocol: "PLAINTEXT"
-      bootstrap.servers: "dev-kafka-cluster-kafka-bootstrap.dev-kafka.svc:9092"
-    adminProperties:
-      security.protocol: "PLAINTEXT"
-[osuser@bastion ~]$ oc get configmap kube-root-ca.crt -n dev-kafka -o yaml | grep -c "BEGIN CERTIFICATE"
-6
-[osuser@bastion ~]$ oc get configmap openshift-service-ca.crt -n dev-kafka
-NAME                       DATA   AGE
-openshift-service-ca.crt   1      551d
-[osuser@bastion ~]$
+# Force operator to regenerate the secret from the new CR
+oc delete secret dev-console-console-secret -n dev-kafka
+
+# Wait 30 seconds, then verify the secret now has NO url field and HAS trustStore
+oc get secret dev-console-console-secret -n dev-kafka \
+  -o jsonpath='{.data.console-config\.yaml}' | base64 -d | grep -A8 metrics
 
 
 
-
+oc logs -n dev-kafka deployment/dev-console-console-deployment --since=2m | grep -i "metric\|ssl"
