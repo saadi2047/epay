@@ -1,0 +1,445 @@
+Perfect — I’ll give you **both formats**:
+
+1. **Confluence-friendly SOP (easy to paste)**
+2. **Formal audit/PDF SOP (enterprise-grade)**
+
+No Hinglish, clean and professional.
+
+---
+
+# 📘 **SOP – Kafka Console (Streamshub) Implementation & Troubleshooting**
+
+---
+
+## ✅ **VERSION 1: Confluence-Ready SOP**
+
+---
+
+## **1. Purpose**
+
+This document defines the standard procedure for:
+
+* Deploying Kafka Console (Streamshub) on OpenShift
+* Integrating Kafka metrics with OpenShift Monitoring (Prometheus/Thanos)
+* Troubleshooting Kafka Console metrics issues
+
+---
+
+## **2. Scope**
+
+Applicable to:
+
+* Dev, SIT, UAT, Pre-Prod, and Production environments
+* Strimzi Kafka clusters deployed on OpenShift
+* Teams: DevOps, Platform Engineering, Kafka Admins
+
+---
+
+## **3. Architecture Overview**
+
+Kafka Console depends on the following components:
+
+| Component                             | Description                 |
+| ------------------------------------- | --------------------------- |
+| Kafka Cluster (Strimzi)               | Source of Kafka data        |
+| JMX Prometheus Exporter               | Exposes Kafka metrics       |
+| PodMonitor                            | Enables Prometheus scraping |
+| OpenShift Monitoring (Thanos Querier) | Metrics backend             |
+| Kafka Console                         | UI for visualization        |
+
+**Important:**
+Kafka Console retrieves metrics from Prometheus, not directly from Kafka.
+
+---
+
+## **4. GitLab Repository Structure**
+
+All configurations must be maintained in GitLab.
+
+```bash
+deployment/dev/charts/epay_common/templates/
+```
+
+| File                         | Purpose                           |
+| ---------------------------- | --------------------------------- |
+| kafka-console.yaml           | Console CR configuration          |
+| kafka-metrics-configmap.yaml | JMX metrics configuration         |
+| podmonitor.yaml              | Prometheus scraping configuration |
+| kafka-cluster.yaml           | Kafka cluster definition          |
+
+---
+
+## **5. Configuration Details**
+
+---
+
+### **5.1 Kafka Console Configuration**
+
+* Define Kafka cluster connection
+* Map metrics source
+
+```yaml
+metricsSource: kafka-metrics
+```
+
+---
+
+### **5.2 Kafka Metrics ConfigMap**
+
+* Defines JMX Prometheus exporter configuration
+
+Must be referenced in Kafka CR:
+
+```yaml
+metricsConfig:
+  type: jmxPrometheusExporter
+  valueFrom:
+    configMapKeyRef:
+      name: kafka-metrics
+      key: kafka-metrics-config.yaml
+```
+
+---
+
+### **5.3 PodMonitor**
+
+* Enables Prometheus to scrape Kafka metrics
+
+---
+
+### **5.4 Kafka Cluster (Strimzi)**
+
+Ensure:
+
+* `metricsConfig` is properly configured
+* ConfigMap reference is valid
+
+---
+
+## **6. Deployment Procedure**
+
+---
+
+### **Step 1: Update GitLab Repository**
+
+```bash
+git add .
+git commit -m "Kafka console and metrics configuration"
+git push
+```
+
+---
+
+### **Step 2: Deploy via CI/CD**
+
+```bash
+helm upgrade --install epay-common ...
+```
+
+---
+
+### **Step 3: Verify Deployment**
+
+```bash
+oc get console -n dev-kafka
+oc get configmap kafka-metrics -n dev-kafka
+oc get podmonitor -n dev-kafka
+```
+
+---
+
+### **Step 4: Restart Console Deployment**
+
+```bash
+oc rollout restart deployment/dev-console-console-deployment -n dev-kafka
+```
+
+---
+
+## **7. Validation Steps**
+
+---
+
+### **7.1 Kafka Metrics Exposure**
+
+```bash
+oc exec -n dev-kafka dev-kafka-cluster-broker-0 -- \
+curl -s localhost:9404/metrics | grep kafka
+```
+
+---
+
+### **7.2 Console Configuration Validation**
+
+```bash
+oc get secret dev-console-console-secret -n dev-kafka \
+-o jsonpath='{.data.console-config\.yaml}' | base64 -d
+```
+
+---
+
+### **7.3 Logs Verification**
+
+```bash
+oc logs -n dev-kafka deployment/dev-console-console-deployment
+```
+
+---
+
+## **8. Troubleshooting Guide**
+
+---
+
+### **Issue: Metrics Not Visible**
+
+**Cause:**
+
+* Kafka metrics not exposed
+* Incorrect ConfigMap mapping
+
+**Resolution:**
+
+* Verify `metricsConfig`
+* Validate ConfigMap reference
+
+---
+
+### **Issue: Prometheus Not Reachable**
+
+**Cause:**
+
+* `metricsSource` not mapped
+
+**Resolution:**
+
+* Add `metricsSource` in Kafka cluster configuration
+
+---
+
+### **Issue: SSL Handshake Failure**
+
+**Cause:**
+
+* Missing CA trust
+
+**Resolution:**
+
+* Configure trusted certificates OR use internal service endpoint
+
+---
+
+### **Issue: Topic Metrics Missing**
+
+**Cause:**
+
+* No activity or exporter misconfiguration
+
+---
+
+### **Issue: Helm Deployment Failure**
+
+**Cause:**
+
+* Conflict between Helm and Operator-managed resources
+
+**Resolution:**
+
+* Do not manage operator-generated secrets via Helm
+
+---
+
+## **9. Debugging Flow**
+
+Follow this sequence:
+
+1. Verify Kafka metrics exposure
+2. Validate PodMonitor configuration
+3. Confirm Prometheus connectivity
+4. Check Console configuration
+5. Validate TLS/SSL settings
+6. Check Kafka cluster health
+
+---
+
+## **10. Screenshots (To Be Included)**
+
+Add screenshots in the following sections:
+
+| Section       | Screenshot                      |
+| ------------- | ------------------------------- |
+| Validation    | Kafka Console metrics dashboard |
+| Validation    | OpenShift → Observe → Metrics   |
+| Deployment    | PodMonitor resource             |
+| Configuration | Kafka CR (metricsConfig)        |
+| Configuration | kafka-metrics ConfigMap         |
+
+---
+
+## **11. Bastion Commands Reference**
+
+```bash
+oc get console -o yaml
+oc get podmonitor -o yaml
+oc logs deployment/dev-console-console-deployment
+oc get secret dev-console-console-secret -o yaml
+```
+
+---
+
+## **12. Best Practices**
+
+---
+
+### **Do**
+
+* Maintain all YAMLs in GitLab
+* Use internal OpenShift monitoring endpoints
+* Validate configuration before deployment
+
+---
+
+### **Do Not**
+
+* Modify operator-managed secrets manually
+* Hardcode external Prometheus URLs
+* Skip PodMonitor configuration
+
+---
+
+# 📄 **VERSION 2: Formal Audit / PDF SOP**
+
+---
+
+## **Document Control**
+
+| Field         | Value                            |
+| ------------- | -------------------------------- |
+| Document Name | Kafka Console Implementation SOP |
+| Version       | 1.0                              |
+| Owner         | DevOps Team                      |
+| Reviewed By   | Platform Team                    |
+| Approved By   | TBD                              |
+| Date          | YYYY-MM-DD                       |
+
+---
+
+## **1. Objective**
+
+To establish a standardized process for deploying, configuring, and troubleshooting Kafka Console with integrated monitoring on OpenShift.
+
+---
+
+## **2. System Overview**
+
+Kafka Console provides visualization of Kafka cluster metrics by integrating with OpenShift Monitoring using Prometheus and Thanos Querier.
+
+---
+
+## **3. Components**
+
+* Strimzi Kafka Cluster
+* Kafka Console (Streamshub)
+* Prometheus (OpenShift Monitoring)
+* Thanos Querier
+* JMX Prometheus Exporter
+* PodMonitor
+
+---
+
+## **4. Implementation Procedure**
+
+### **4.1 Configuration Management**
+
+All configuration files must be version-controlled in GitLab.
+
+### **4.2 Deployment**
+
+Deployment is performed via Helm using CI/CD pipelines.
+
+### **4.3 Validation**
+
+Post-deployment validation must confirm:
+
+* Kafka metrics exposure
+* Prometheus scraping
+* Console accessibility
+
+---
+
+## **5. Monitoring Integration**
+
+* Kafka exposes metrics via JMX exporter
+* PodMonitor enables scraping
+* Prometheus stores metrics
+* Console consumes metrics
+
+---
+
+## **6. Troubleshooting**
+
+| Issue               | Root Cause          | Resolution                |
+| ------------------- | ------------------- | ------------------------- |
+| Metrics not visible | Metrics not exposed | Fix ConfigMap             |
+| SSL errors          | Missing trust       | Configure CA              |
+| No topic metrics    | No activity         | Validate traffic          |
+| Deployment failure  | Helm conflict       | Remove ownership conflict |
+
+---
+
+## **7. Compliance & Governance**
+
+* All changes must be tracked in GitLab
+* No manual changes in production
+* Follow RBAC policies
+
+---
+
+## **8. Evidence Collection**
+
+For incident analysis, capture:
+
+* Console logs
+* Kafka CR YAML
+* PodMonitor configuration
+* Prometheus query results
+* UI screenshots
+
+---
+
+## **9. Change Management**
+
+Any updates must follow:
+
+* GitLab merge request
+* Peer review
+* CI/CD deployment
+* Validation
+
+---
+
+## **10. Appendix**
+
+### Commands
+
+```bash
+oc get console -n <namespace>
+oc logs deployment/<console>
+oc get podmonitor
+```
+
+---
+
+# 🎯 Final Guidance
+
+👉 Use:
+
+* **Version 1 → Confluence / internal docs**
+* **Version 2 → Audit / client / compliance**
+
+---
+
+If you want next:
+👉 I can help you create **Dev Kafka cluster tuning SOP (next level)**
+👉 Or convert this into **actual PDF file format with headings + styling**
+
+Just tell 👍
