@@ -1,20 +1,39 @@
-Hi Angelo,
+Hi Team,
 
-Please find the attached kafka.yaml.
+The Kafka Console (Streamshub) setup for the **dev-kafka** environment has been successfully implemented and validated.
 
-Additionally sharing some context for the issue:
+As part of this activity, we have:
 
-Kafka cluster is running fine and brokers are healthy
-Metrics are exposed on port 9404
-Prometheus is scraping metrics successfully
-PodMonitor is configured correctly
-Console ServiceAccount has required RBAC (cluster-monitoring-view)
+* Configured Kafka Console with OpenShift Monitoring integration
+* Enabled Kafka metrics using JMX Prometheus exporter
+* Integrated PodMonitor for Prometheus scraping
+* Resolved metrics visibility issues related to SSL and configuration
 
-However:
+The detailed **Standard Operating Procedure (SOP)** covering:
 
-Kafka Console UI loads cluster details
-But metrics are not visible in the UI
+* Implementation steps
+* Configuration details (YAMLs)
+* Validation steps
+* Troubleshooting scenarios
+* Console UI screenshots
 
-Requesting your help to identify if anything is missing in Kafka configuration or integration with Console/Prometheus.
+is attached for your reference.
 
-Thanks.
+📎 Please refer to the attached document: 
+
+Key highlights:
+
+* Kafka cluster metrics (CPU, Memory, Disk) are now visible in Console UI
+* Topic-level metrics (throughput) are working as expected
+* Consumer group, partition, and message-level insights are available
+
+Kindly review the document and let us know if any changes or additional details are required.
+
+Next steps:
+
+* Proceed with fine-tuning of the dev-kafka cluster
+* Extend the same setup to higher environments (SIT/UAT/Pre-Prod)
+
+Thanks & Regards,
+Saadi M Muzzammil
+Kafka Admin
