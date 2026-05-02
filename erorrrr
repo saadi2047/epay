@@ -1,92 +1,77 @@
-[osuser@bastion ~]$ oc get networkpolicy dev-kafka-cluster-network-policy-kafka -n dev-kafka -o yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
 metadata:
-  creationTimestamp: "2025-11-11T09:58:39Z"
-  generation: 4
-  labels:
-    app.kubernetes.io/instance: dev-kafka-cluster
-    app.kubernetes.io/managed-by: strimzi-cluster-operator
-    app.kubernetes.io/name: kafka
-    app.kubernetes.io/part-of: strimzi-dev-kafka-cluster
-    environment: dev
-    strimzi.io/cluster: dev-kafka-cluster
-    strimzi.io/component-type: kafka
-    strimzi.io/kind: Kafka
-    strimzi.io/name: dev-kafka-cluster-kafka
-  name: dev-kafka-cluster-network-policy-kafka
+  name: dev-console
   namespace: dev-kafka
-  ownerReferences:
-  - apiVersion: kafka.strimzi.io/v1beta2
-    blockOwnerDeletion: false
-    controller: false
-    kind: Kafka
-    name: dev-kafka-cluster
-    uid: ab8cf8f2-7a71-4b49-8c7e-5b469a8dec8a
-  resourceVersion: "718084438"
-  uid: 8375dca5-3049-44a5-be73-ac4ed5c9d82a
+
 spec:
-  ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          strimzi.io/cluster: dev-kafka-cluster
-          strimzi.io/kind: Kafka
-          strimzi.io/name: dev-kafka-cluster-kafka
-    - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          strimzi.io/kind: cluster-operator
-    ports:
-    - port: 9090
-      protocol: TCP
-  - from:
-    - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          strimzi.io/kind: cluster-operator
-    - podSelector:
-        matchLabels:
-          strimzi.io/cluster: dev-kafka-cluster
-          strimzi.io/kind: Kafka
-          strimzi.io/name: dev-kafka-cluster-kafka
-    - podSelector:
-        matchLabels:
-          strimzi.io/name: dev-kafka-cluster-entity-operator
-    - podSelector:
-        matchLabels:
-          strimzi.io/name: dev-kafka-cluster-kafka-exporter
-    - podSelector:
-        matchLabels:
-          strimzi.io/name: dev-kafka-cluster-cruise-control
-    ports:
-    - port: 9091
-      protocol: TCP
-  - from:
-    - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          strimzi.io/kind: cluster-operator
-    ports:
-    - port: 8443
-      protocol: TCP
-  - ports:
-    - port: 9092
-      protocol: TCP
-  - ports:
-    - port: 9093
-      protocol: TCP
-  - ports:
-    - port: 9094
-      protocol: TCP
-  - ports:
-    - port: 9404
-      protocol: TCP
-  podSelector:
-    matchLabels:
-      strimzi.io/cluster: dev-kafka-cluster
-      strimzi.io/kind: Kafka
-      strimzi.io/name: dev-kafka-cluster-kafka
-  policyTypes:
-  - Ingress
-[osuser@bastion ~]$
+  hostname: dev-kafkaconsole.apps.dev.sbiepay.sbi
+
+  metricsSources:
+    - name: kafka-metrics
+      type: openshift-monitoring
+      trustStore:
+        type: PEM
+        content:
+          valueFrom:
+            configMapKeyRef:
+              name: kube-root-ca.crt
+              key: ca.crt
+
+  kafkaClusters:
+    - name: dev-kafka-cluster
+      namespace: dev-kafka
+      listener: plain
+      metricsSource: kafka-metrics
+
+      properties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      adminProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: default.api.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      consumerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
+
+      producerProperties:
+        values:
+          - name: security.protocol
+            value: PLAINTEXT
+          - name: request.timeout.ms
+            value: "30000"
+          - name: connections.max.idle.ms
+            value: "540000"
+          - name: reconnect.backoff.ms
+            value: "1000"
+          - name: reconnect.backoff.max.ms
+            value: "10000"
