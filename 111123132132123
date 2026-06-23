@@ -1,44 +1,35 @@
-issue1:
-Runner related
+Hi @VISHAL BANSAL,
 
-The pipeline is failing due to GitLab Runner issue Please find the attached screenshot for reference , and URLs
+Access given to above users, some of the users still not logged into JFrog ,Please inform these users to login to JFrog and enable MFA.
 
-URLs:  version (#1150291) · Jobs · IT-EPAY-PG-SBIePay2 / Application / Backend / Epay_Refund_Service · GitLab
+Users not logged into Jfrog.
 
-
-issue 2:
-
-As discussed, Ms. @UJWALA LAXMAN KABADI (app-developer) is unable to log in to JFrog.
-
-She is attempting to log in for the first time using her AD ID and password. However, she has never registered or configured any Authenticator application for MFA. Despite this, the JFrog login process is prompting her to enter a One-Time Code from an Authenticator app, preventing her from accessing the portal.
-
-Kindly assist in resolving this issue or resetting the MFA configuration so that she can complete the login process successfully.
-
-Your support in this regard would be greatly appreciated
-
-
-issue 3:
-
-image push related
-
-We have been observing intermittent failures during the image push stage in all environments. I tested with two different services and encountered the same error:
-(Error: writing blob: uploading layer chunked: unexpected EOF)
-
-The issue is reproducible across multiple services and does not appear to be service-specific. We have also noticed that if the pipeline is retried after 10–15 minutes, the image push completes successfully.
-
-I have attached the error screenshot for reference. Could you please investigate this from the Artifactory/Infrastructure side and let us know if there are any known issues or limitations causing these intermittent failures?
-
-
-issue 4
-update tag related
-
-While validating the pipeline, I observed failures in both the Validate Service and Update Tag stages. The issue is reproducible across multiple pipeline executions.
-
-I have attached the screenshots for reference .
-
-Update tag:
-
-
-
-issue 5 :
-Validate service:
+v1024040
+v1024840
+V1014674
+V1018193
+v1010821
+v1023935
+V1018400
+V1013408
+VCE2656
+VCE2496
+V1015778
+V1011279
+v1010820
+V1013186
+V1018791
+v1013764
+VCE2661
+V1011145
+V1013367
+V1010467
+V1019438
+V1007819
+V1014830
+V1001439
+V1010984
+V1018391
+V1017518
+V1018784
+V1025207
