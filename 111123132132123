@@ -1,0 +1,56 @@
+App team issues:
+
+Hi DevOps,
+
+Following thing are working:
+Backend repos are present.
+We are able to see our existing MR and branches.
+We are able to commit with new pattern.
+We are able to publish Java utilities but we should disable it from feature and develop branch.
+
+Please find below observations for Centralized GIT and JFrog:
+Feature should not be deployed automatically from MR, as we might have multiple features MR.
+We are unable to merge feature to feature MR, we need to this because on one feature multile developer will work.
+When developer are creating feature MR, pipeline is not getting triggered.
+Backend repos are not available for some developers.
+Duplicate Epics.
+Epic parent child mappings are not correct.
+Release manager is allowed to merge but after merging into develop pipeline fails on deploy.
+Main and existing release branches don't have JFrog changes and centralized gitlab changes. Package registry(Docker image and Utilities Jars) should be maintained until we will migrate JFrog into production
+Config repo is present but not in use.
+DevOps repo is not visible to developers.
+
+@Faizan Samad Pinjari Please share your observations.
+
+
+
+Dear Team,
+
+Please find below observation points.
+
+Epic Board is not proper.
+SBIePay 1.0, Project name?
+RoadMap project wise issue
+Milestone count mis match.
+
+
+
+our reply
+Dear Team,
+
+Please find below the current status of the identified items:
+
+Feature branches will not be deployed automatically from Merge Requests, as multiple feature MRs may exist simultaneously – Completed.
+Feature-to-feature Merge Requests are now allowed to support multiple developers working on the same feature – Completed.
+Pipelines are not getting triggered when developers create feature MRs – Pending.
+Backend repositories are not accessible to some developers – Pending (Bank Team Action Required).
+Duplicate epics have been removed – Completed.
+Epic parent-child mappings were found to be incorrect-: Due to hierarchy-related issues, the repository structure has been reorganized.
+Release Managers are allowed to merge code. However, after code is merged into the develop branch, deployment must be performed or re-triggered by the respective Team Lead.
+
+Main and existing release branches do not currently contain the JFrog and centralized GitLab changes. The Package Registry (Docker images and utility JARs) will continue to be maintained until JFrog migration to Production is completed-: Kindly update the settings.gradle, build.gradle, Dockerfile, and .gitlab-ci.yml files in the main and release branches to align with the changes already available in the develop branch.
+
+The Config repository is available but is currently not being used. A decision is required regarding ownership and management of configuration files.
+The DevOps repository is not visible to developers-: Developer access to the DevOps repository is not required, as deployment activities can be performed through the respective application repositories.
+
+Please let us know if any further clarification is required.
